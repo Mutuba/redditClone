@@ -34,5 +34,8 @@ public class Post {
     private Instant creationDate;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id", referencedColumnName = "id")
+
+    // a sub reddit owns a post and one can have many posts that are either upvoted or downvoted
+    // hence a post has many votes
     private Subreddit subreddit;
 }

@@ -1,7 +1,5 @@
 package com.example.redditClone.models;
 
-import com.example.redditClone.models.Post;
-import com.example.redditClone.models.User;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
