@@ -1,9 +1,6 @@
 package com.example.redditClone.models;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -13,6 +10,8 @@ import javax.validation.constraints.NotNull;
 @NoArgsConstructor
 @Builder
 @Entity
+@Getter
+@Setter
 public class Vote {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)

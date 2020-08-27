@@ -1,8 +1,6 @@
 package com.example.redditClone.models;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 import javax.validation.constraints.Email;
@@ -14,6 +12,9 @@ import java.time.Instant;
 @NoArgsConstructor
 @Table(name = "users")
 @Entity
+
+@Setter
+@Getter
 public class User {
     @Id
     @SequenceGenerator(name = "USER_GEN", sequenceName = "SEQ_USER", allocationSize = 1)
