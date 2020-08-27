@@ -1,5 +1,7 @@
 package com.example.redditClone.controller;
 
+import com.example.redditClone.dto.AuthenticationResponse;
+import com.example.redditClone.dto.LoginRequest;
 import com.example.redditClone.dto.RegistrationRequest;
 import com.example.redditClone.service.AuthService;
 import lombok.AllArgsConstructor;
@@ -16,6 +18,7 @@ public class AuthController {
     @Autowired
    private AuthService authService;
 
+
     @PostMapping("/register")
     public ResponseEntity register(@RequestBody RegistrationRequest registerRequest) {
         authService.register(registerRequest);
@@ -26,5 +29,11 @@ public class AuthController {
     public ResponseEntity verify(@PathVariable String token) {
         authService.verifyToken(token);
         return new ResponseEntity<>("Account Activated", HttpStatus.OK);
+    }
+
+
+    @PostMapping("/login")
+    public AuthenticationResponse register(@RequestBody LoginRequest loginRequest) {
+        return authService.login(loginRequest);
     }
 }
