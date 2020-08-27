@@ -1,5 +1,7 @@
 package com.example.redditClone.service;
 
+import com.example.redditClone.dto.AuthenticationResponse;
+import com.example.redditClone.dto.LoginRequest;
 import com.example.redditClone.dto.RegistrationRequest;
 import com.example.redditClone.exception.ActivationException;
 import com.example.redditClone.models.AccountVerificationToken;
@@ -8,7 +10,13 @@ import com.example.redditClone.models.User;
 import static com.example.redditClone.config.Constants.EMAIL_ACTIVATION;
 import com.example.redditClone.repository.TokenRepository;
 import com.example.redditClone.repository.UserRepository;
+import com.example.redditClone.security.JWTProvider;
 import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,12 +29,20 @@ import java.util.UUID;
 @AllArgsConstructor
 
 public class AuthService {
-
+    @Autowired
+    AuthenticationManager authenticationManager;
+    @Autowired
     UserRepository userRepository;
+    @Autowired
     PasswordEncoder passwordEncoder;
+    @Autowired
     TokenRepository tokenRepository;
+    @Autowired
     MailService mailService;
+    @Autowired
     MailBuilder mailBuilder;
+    @Autowired
+    JWTProvider jwtProvider;
 
     @Transactional
     public void register(RegistrationRequest registerRequest) {
@@ -43,6 +59,16 @@ public class AuthService {
         String message = mailBuilder.build("Welcome to React-Spring-Reddit Clone. " +
                 "Please visit the link below to activate you account : " + EMAIL_ACTIVATION + "/" + token);
         mailService.sendEmail(new NotificationEmail("Please Activate Your Account", user.getEmail(), message));
+    }
+
+
+    public AuthenticationResponse login (LoginRequest loginRequest) {
+        Authentication authenticate = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        loginRequest.getUsername(), loginRequest.getPassword()));
+        SecurityContextHolder.getContext().setAuthentication(authenticate);
+        String authToken = jwtProvider.generateToken(authenticate);
+        return new AuthenticationResponse(authToken, loginRequest.getUsername());
     }
 
     private String encodePassword(String password) {
