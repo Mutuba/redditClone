@@ -11,10 +11,9 @@ import java.time.Instant;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "users")
-@Entity
-
 @Setter
 @Getter
+@Entity
 public class User {
     @Id
     @SequenceGenerator(name = "USER_GEN", sequenceName = "SEQ_USER", allocationSize = 1)

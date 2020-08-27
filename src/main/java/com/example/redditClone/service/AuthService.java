@@ -10,7 +10,6 @@ import com.example.redditClone.models.User;
 import static com.example.redditClone.config.Constants.EMAIL_ACTIVATION;
 import com.example.redditClone.repository.TokenRepository;
 import com.example.redditClone.repository.UserRepository;
-import com.example.redditClone.security.JWTProvider;
 import com.example.redditClone.security.JwtTokenProvider;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
