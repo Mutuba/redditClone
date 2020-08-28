@@ -17,6 +17,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -58,9 +59,18 @@ public class AuthService {
         String token = generateToken(user);
         String message = mailBuilder.build("Welcome to React-Spring-Reddit Clone. " +
                 "Please visit the link below to activate you account : " + EMAIL_ACTIVATION + "/" + token);
-        mailService.sendEmail(new NotificationEmail("Please Activate Your Account", user.getEmail(), message));
+        mailService.sendEmail(
+                new NotificationEmail("Please Activate Your Account", user.getEmail(), message));
     }
 
+    @Transactional(readOnly = true)
+    public User getCurrentUser() {
+        UserPrincipal principal = (UserPrincipal) SecurityContextHolder.
+                getContext().getAuthentication().getPrincipal();
+        return userRepository.findByUsername(principal.getUsername())
+                .orElseThrow(() -> new UsernameNotFoundException(
+                        "User not found with username: " + principal.getUsername()));
+    }
 
     public AuthenticationResponse login (LoginRequest loginRequest) {
         Authentication authentication = authenticationManager.authenticate(

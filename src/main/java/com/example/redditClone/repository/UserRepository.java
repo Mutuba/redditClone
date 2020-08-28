@@ -35,3 +35,13 @@ public interface UserRepository extends CrudRepository<User, Long> {
 //    )
 //    public List<Todo> findByTitle();
 //}
+
+//interface TodoRepository extends Repository<Todo, Long> {
+//
+//    @Query(value = "SELECT * FROM todos t WHERE " +
+//            "LOWER(t.title) LIKE LOWER(CONCAT('%',:searchTerm, '%')) OR " +
+//            "LOWER(t.description) LIKE LOWER(CONCAT('%',:searchTerm, '%'))",
+//            nativeQuery = true
+//    )
+//    List<Todo> findBySearchTermNative(@Param("searchTerm") String searchTerm);
+//}
