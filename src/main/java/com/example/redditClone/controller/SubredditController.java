@@ -3,6 +3,8 @@ package com.example.redditClone.controller;
 import com.example.redditClone.dto.SubredditDTO;
 import com.example.redditClone.service.SubredditService;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -26,7 +28,8 @@ public class SubredditController {
     }
 
     @PostMapping
-    public SubredditDTO addSubreddit(@RequestBody @Valid SubredditDTO subredditDTO) {
-        return subredditService.save(subredditDTO);
+    public ResponseEntity addSubreddit(@RequestBody @Valid SubredditDTO subredditDTO) {
+        SubredditDTO  subredditDTO1= subredditService.save(subredditDTO);
+        return new ResponseEntity(subredditDTO1, HttpStatus.CREATED);
     }
 }

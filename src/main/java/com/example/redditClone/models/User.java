@@ -1,18 +1,18 @@
 package com.example.redditClone.models;
 
 import lombok.*;
+import lombok.experimental.Accessors;
 
 import javax.persistence.*;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import java.time.Instant;
 
+
 @Data
-@AllArgsConstructor
+//@AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "users")
-@Setter
-@Getter
 @Entity
 public class User {
     @Id
@@ -23,9 +23,13 @@ public class User {
     private String username;
     @NotBlank(message = "Password is required")
     private String password;
+
+
     @Email
     @NotBlank(message = "Email is required")
     private String email;
     private Instant creationDate;
     private boolean accountStatus;
+
+
 }
