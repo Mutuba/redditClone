@@ -1,8 +1,10 @@
 package com.example.redditClone.controller;
 
+import com.example.redditClone.dto.APIResponse;
 import com.example.redditClone.dto.AuthenticationResponse;
 import com.example.redditClone.dto.LoginRequest;
 import com.example.redditClone.dto.RegistrationRequest;
+import com.example.redditClone.repository.UserRepository;
 import com.example.redditClone.service.AuthService;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,9 +20,23 @@ public class AuthController {
     @Autowired
    private AuthService authService;
 
+    @Autowired
+    UserRepository userRepository;
+
 
     @PostMapping("/register")
     public ResponseEntity register(@RequestBody RegistrationRequest registerRequest) {
+
+        if (userRepository.existsByUsername(registerRequest.getUsername())) {
+            return new ResponseEntity(new APIResponse(false, "Username is already taken!"),
+                    HttpStatus.BAD_REQUEST);
+        }
+
+        if (userRepository.existsByEmail(registerRequest.getEmail())) {
+            return new ResponseEntity(new APIResponse(false, "Email Address already in use!"),
+                    HttpStatus.BAD_REQUEST);
+        }
+
         authService.register(registerRequest);
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -33,7 +49,7 @@ public class AuthController {
 
 
     @PostMapping("/login")
-    public AuthenticationResponse register(@RequestBody LoginRequest loginRequest) {
+    public AuthenticationResponse login(@RequestBody LoginRequest loginRequest) {
         return authService.login(loginRequest);
     }
 }

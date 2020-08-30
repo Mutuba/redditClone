@@ -1,5 +1,6 @@
 package com.example.redditClone;
 
+import com.example.redditClone.dto.RegistrationRequest;
 import com.example.redditClone.dto.SubredditDTO;
 import com.example.redditClone.exception.SubredditNotFoundException;
 import com.example.redditClone.models.User;
@@ -29,12 +30,14 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
+import static org.mockito.ArgumentMatchers.any;
 
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
 import static groovy.json.JsonOutput.toJson;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @RunWith(SpringRunner.class)
@@ -81,8 +84,8 @@ public class AuthControllerTest {
         UserPrincipal userPrincipal = new UserPrincipal(123L,
                 "Mutush", "daniel@gmail.com",
                 passwordEncoder.encode("Baraka1234"), grantedAuthority);
-        Mockito.when(customUserDetailsService.loadUserById(123L)).thenReturn(userPrincipal);
-        Mockito.when(jwtTokenProvider.validateToken(Mockito.anyString())).thenReturn(Boolean.TRUE);
+        when(customUserDetailsService.loadUserById(123L)).thenReturn(userPrincipal);
+        when(jwtTokenProvider.validateToken(Mockito.anyString())).thenReturn(Boolean.TRUE);
     }
 
 
@@ -90,8 +93,9 @@ public class AuthControllerTest {
     @Test
     public void userSigningUpReturnsCreated() throws Exception {
         // Arrange
-        User mockUser = new User("Course1", "Spring", "daniel@gmail.com", "Baraka1234");
-        when(userRepository.save(any(User.class))).thenReturn(mockUser);
+        RegistrationRequest registrationRequest = new RegistrationRequest("Course1", "daniel@gmail.com", "Baraka1234");
+
+        when(authService.register(any(Mockito.any(RegistrationRequest.class)).thenReturn(mockUser);
 
 
         // Act
@@ -116,8 +120,8 @@ public class AuthControllerTest {
                 "What the fuck"
         ).build();
 
-        Mockito.when(jwtTokenProvider.getUserIdFromJWT(token)).thenReturn(123L);
-        Mockito.when(subredditService.save(Mockito.any(SubredditDTO.class))).thenReturn(subredditDTO);
+        when(jwtTokenProvider.getUserIdFromJWT(token)).thenReturn(123L);
+        when(subredditService.save(Mockito.any(SubredditDTO.class))).thenReturn(subredditDTO);
 
         // Act & Assert
 
@@ -135,7 +139,7 @@ public class AuthControllerTest {
     @Test
     public void getAllSubreddits_ShouldReturn_List_of_Subreddits() throws Exception {
         String token = authToken();
-        Mockito.when(jwtTokenProvider.getUserIdFromJWT(token)).thenReturn(123L);
+        when(jwtTokenProvider.getUserIdFromJWT(token)).thenReturn(123L);
 
         List<SubredditDTO> subredditDTOS = Arrays.asList(
                 SubredditDTO.builder().name("iPhone12").description("The best smartphone ever").build(),
@@ -143,7 +147,7 @@ public class AuthControllerTest {
                 SubredditDTO.builder().name("iPhone14").description("The best smartphone ever").build()
         );
 
-        Mockito.when(subredditService.getAll()).thenReturn(subredditDTOS);
+        when(subredditService.getAll()).thenReturn(subredditDTOS);
 
         mockMvc.perform(MockMvcRequestBuilders
                 .get("/api/subreddit").header("Authorization", "Bearer " + token))
@@ -154,13 +158,13 @@ public class AuthControllerTest {
     @Test
     public void getSubreddit_ShouldReturn_Found_Subreddit() throws Exception {
         String token = authToken();
-        Mockito.when(jwtTokenProvider.getUserIdFromJWT(token)).thenReturn(123L);
+        when(jwtTokenProvider.getUserIdFromJWT(token)).thenReturn(123L);
 
         SubredditDTO subredditDTO =
                 SubredditDTO.builder().name("iPhone12").description("The best smartphone ever").id(123L).build();
 
 
-        Mockito.when(subredditService.getSubreddit(123l)).thenReturn(subredditDTO);
+        when(subredditService.getSubreddit(123l)).thenReturn(subredditDTO);
 
         mockMvc.perform(MockMvcRequestBuilders
                 .get("/api/subreddit/123").header("Authorization", "Bearer " + token)
@@ -177,9 +181,9 @@ public class AuthControllerTest {
     @Test
     public void getSubreddit_ShouldReturn_404_Not_Found_For_Non_Existent_Subreddit() throws Exception {
         String token = authToken();
-        Mockito.when(jwtTokenProvider.getUserIdFromJWT(token)).thenReturn(123L);
+        when(jwtTokenProvider.getUserIdFromJWT(token)).thenReturn(123L);
 
-        Mockito.when(subredditService.getSubreddit(Mockito.anyLong()))
+        when(subredditService.getSubreddit(Mockito.anyLong()))
                 .thenThrow(new SubredditNotFoundException("Subreddit not found with id -" + Mockito.anyLong()));
 
         mockMvc.perform(MockMvcRequestBuilders
