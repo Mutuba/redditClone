@@ -1,15 +1,10 @@
 package com.example.redditClone;
 
-import com.example.redditClone.dto.*;
-import com.example.redditClone.exception.SubredditNotFoundException;
-import com.example.redditClone.models.User;
+import com.example.redditClone.dto.AuthenticationResponse;
+import com.example.redditClone.dto.LoginRequest;
+import com.example.redditClone.dto.RegistrationRequest;
 import com.example.redditClone.repository.UserRepository;
-import com.example.redditClone.security.JwtTokenProvider;
 import com.example.redditClone.service.AuthService;
-import com.example.redditClone.service.CustomUserDetailsService;
-import com.example.redditClone.service.SubredditService;
-import com.example.redditClone.service.UserPrincipal;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -21,28 +16,16 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.junit.Assert.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-
 import static groovy.json.JsonOutput.toJson;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @RunWith(SpringRunner.class)
@@ -62,6 +45,7 @@ public class AuthControllerTest {
 
     @MockBean
     AuthService authService;
+
 
     @MockBean
     private JavaMailSender sender;
@@ -155,9 +139,7 @@ public class AuthControllerTest {
 
     @Test
     public void userVerifyTokenIsSuccessful() throws Exception {
-//        Mockito.when(authService.login(loginRequest)).thenThrow(new BadCredentialsException("Bad credentials"));
         String token = authToken();
-
         //Act & Assert
         mockMvc.perform(MockMvcRequestBuilders.get("/api/auth/verify/token")
                 .content(toJson(token))
@@ -165,8 +147,8 @@ public class AuthControllerTest {
                 .andExpect(status().isOk())
                 .andDo(print())
                 .andExpect(content().contentType("application/json"));
-//                .andExpect(jsonPath("$.error").value("Bad credentials"));
     }
+
 
 
     // Utility functions used in the test class

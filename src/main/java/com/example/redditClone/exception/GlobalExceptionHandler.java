@@ -22,7 +22,8 @@ import javax.validation.ConstraintViolationException;
 @ControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(SubredditNotFoundException.class)
-    public ResponseEntity<TimeStampErrorMessage> resourceNotFoundException(SubredditNotFoundException ex, WebRequest request) {
+    public ResponseEntity<TimeStampErrorMessage> resourceNotFoundException(SubredditNotFoundException ex,
+                                                                           WebRequest request) {
         TimeStampErrorMessage errors = new TimeStampErrorMessage();
         errors.setTimestamp(LocalDateTime.now());
         errors.setError(ex.getMessage());
@@ -31,6 +32,16 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(errors, HttpStatus.NOT_FOUND);
     }
 
+    @ExceptionHandler(ActivationException.class)
+    public ResponseEntity<TimeStampErrorMessage> activationException(ActivationException ex,
+                                                                     WebRequest request) {
+        TimeStampErrorMessage errors = new TimeStampErrorMessage();
+        errors.setTimestamp(LocalDateTime.now());
+        errors.setError(ex.getMessage());
+        errors.setStatus(HttpStatus.BAD_REQUEST.value());
+        errors.setDetails(request.getDescription(false));
+        return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+    }
 
     // @Validate For Validating Path Variables and Request Parameters
     @ExceptionHandler(ConstraintViolationException.class)
@@ -53,7 +64,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         List<String> errors = ex.getBindingResult()
                 .getFieldErrors()
                 .stream()
-                .map(x ->  String.format(x.getField() + ' ' + "field" + ' ' + x.getDefaultMessage() ))
+                .map(x -> String.format(x.getField() + ' ' + "field" + ' ' + x.getDefaultMessage()))
                 .collect(Collectors.toList());
 
         body.put("errors", errors);
