@@ -137,7 +137,6 @@ public class AuthControllerTest {
     }
 
 
-
     @Test
     public void userLoginUnsuccessfulWhenWrongAccountDetails() throws Exception {
         LoginRequest loginRequest = loginRequest();
@@ -153,6 +152,21 @@ public class AuthControllerTest {
                 .andExpect(jsonPath("$.error").value("Bad credentials"));
     }
 
+
+    @Test
+    public void userVerifyTokenIsSuccessful() throws Exception {
+//        Mockito.when(authService.login(loginRequest)).thenThrow(new BadCredentialsException("Bad credentials"));
+        String token = authToken();
+
+        //Act & Assert
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/auth/verify/token")
+                .content(toJson(token))
+                .contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andDo(print())
+                .andExpect(content().contentType("application/json"));
+//                .andExpect(jsonPath("$.error").value("Bad credentials"));
+    }
 
 
     // Utility functions used in the test class
