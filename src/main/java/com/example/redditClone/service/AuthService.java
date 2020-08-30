@@ -82,9 +82,12 @@ public class AuthService {
         return new AuthenticationResponse(authToken, loginRequest.getUsername());
     }
 
+
     private String encodePassword(String password) {
         return passwordEncoder.encode(password);
     }
+
+
 
     private String generateToken(User user) {
         String token = UUID.randomUUID().toString();
@@ -94,6 +97,7 @@ public class AuthService {
         tokenRepository.save(verificationToken);
         return token;
     }
+
 
     public void verifyToken(String token) {
         Optional<AccountVerificationToken> verificationToken = tokenRepository.findByToken(token);

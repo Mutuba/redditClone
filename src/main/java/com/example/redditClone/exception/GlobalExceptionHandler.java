@@ -68,9 +68,9 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         TimeStampErrorMessage errors = new TimeStampErrorMessage();
         errors.setTimestamp(LocalDateTime.now());
         errors.setError(ex.getMessage());
-        errors.setStatus(HttpStatus.UNAUTHORIZED.value());
+        errors.setStatus(HttpStatus.BAD_REQUEST.value());
         errors.setDetails(request.getDescription(false));
-        return new ResponseEntity<>(errors, HttpStatus.UNAUTHORIZED);
+        return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(RequestRejectedException.class)

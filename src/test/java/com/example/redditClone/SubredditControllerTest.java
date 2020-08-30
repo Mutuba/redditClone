@@ -71,7 +71,7 @@ public class SubredditControllerTest {
     }
 
     @Before
-    public void authSetUp(){
+    public void authSetUp() {
         Collection<GrantedAuthority> grantedAuthority = Arrays.asList(
                 new SimpleGrantedAuthority("USER")
         );
@@ -84,9 +84,8 @@ public class SubredditControllerTest {
     }
 
 
-
     @Test
-    public  void addSubreddit_ShouldReturn_Created_Subreddit() throws Exception{
+    public void addSubreddit_ShouldReturn_Created_Subreddit() throws Exception {
         String token = authToken();
 
         SubredditDTO subredditDTO = SubredditDTO.builder().name("Love").description(
@@ -106,26 +105,26 @@ public class SubredditControllerTest {
                 .andExpect(content().contentType("application/json"))
                 .andExpect(jsonPath("$.name").value("Love"))
                 .andExpect(jsonPath("$.description").value("What the fuck"));
-}
+    }
 
 
-@Test
+    @Test
     public void getAllSubreddits_ShouldReturn_List_of_Subreddits() throws Exception {
         String token = authToken();
         Mockito.when(jwtTokenProvider.getUserIdFromJWT(token)).thenReturn(123L);
 
-    List<SubredditDTO> subredditDTOS = Arrays.asList(
-            SubredditDTO.builder().name("iPhone12").description("The best smartphone ever").build(),
-            SubredditDTO.builder().name("iPhone13").description("The best smartphone ever").build(),
-            SubredditDTO.builder().name("iPhone14").description("The best smartphone ever").build()
-    );
+        List<SubredditDTO> subredditDTOS = Arrays.asList(
+                SubredditDTO.builder().name("iPhone12").description("The best smartphone ever").build(),
+                SubredditDTO.builder().name("iPhone13").description("The best smartphone ever").build(),
+                SubredditDTO.builder().name("iPhone14").description("The best smartphone ever").build()
+        );
 
-    Mockito.when(subredditService.getAll()).thenReturn(subredditDTOS);
+        Mockito.when(subredditService.getAll()).thenReturn(subredditDTOS);
 
- mockMvc.perform(MockMvcRequestBuilders
-           .get("/api/subreddit").header("Authorization", "Bearer " + token))
-           .andExpect(status().isOk());
-}
+        mockMvc.perform(MockMvcRequestBuilders
+                .get("/api/subreddit").header("Authorization", "Bearer " + token))
+                .andExpect(status().isOk());
+    }
 
 
     @Test
@@ -150,7 +149,6 @@ public class SubredditControllerTest {
     }
 
 
-
     @Test
     public void getSubreddit_ShouldReturn_404_Not_Found_For_Non_Existent_Subreddit() throws Exception {
         String token = authToken();
@@ -170,30 +168,25 @@ public class SubredditControllerTest {
      * Return an Auth Token.
      *
      * @return The result as a string.
-     *
-     * @throws Exception
-     *             if you got any of the above wrong.
+     * @throws Exception if you got any of the above wrong.
      */
 
 
-public String authToken(){
+    public String authToken() {
 
-    String token = "wqerwtytyjukilroli7ruktyrtrbrntj";
-    return token;
-}
+        String token = "wqerwtytyjukilroli7ruktyrtrbrntj";
+        return token;
+    }
 
     /**
      * Convert JSON Result to object.
      *
-     * @param result
-     *            The contents
-     * @param tClass
-     *            The expected object class
+     * @param result The contents
+     * @param tClass The expected object class
      * @return The result as class.
-     *
-     * @throws Exception
-     *             if you got any of the above wrong.
-     */    <T> T fromJsonResult(MvcResult result, Class<T> tClass) throws Exception {
+     * @throws Exception if you got any of the above wrong.
+     */
+    <T> T fromJsonResult(MvcResult result, Class<T> tClass) throws Exception {
         return this.mapper.readValue(result.getResponse().getContentAsString(), tClass);
     }
 }

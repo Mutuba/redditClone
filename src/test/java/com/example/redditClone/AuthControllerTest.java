@@ -1,8 +1,6 @@
 package com.example.redditClone;
 
-import com.example.redditClone.dto.APIResponse;
-import com.example.redditClone.dto.RegistrationRequest;
-import com.example.redditClone.dto.SubredditDTO;
+import com.example.redditClone.dto.*;
 import com.example.redditClone.exception.SubredditNotFoundException;
 import com.example.redditClone.models.User;
 import com.example.redditClone.repository.UserRepository;
@@ -22,6 +20,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -32,8 +31,10 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.junit.Assert.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -50,9 +51,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ActiveProfiles("test")
 public class AuthControllerTest {
 
-    // Used for converting heroes to/from JSON
-    private ObjectMapper mapper = new ObjectMapper();
-
     @Autowired
     private WebApplicationContext webApplicationContext;
 
@@ -66,35 +64,15 @@ public class AuthControllerTest {
     AuthService authService;
 
     @MockBean
-    JwtTokenProvider jwtTokenProvider;
-
-    @MockBean
     private JavaMailSender sender;
 
-    @MockBean
-    CustomUserDetailsService customUserDetailsService;
-
-    @Autowired
-    PasswordEncoder passwordEncoder;
+    public AuthControllerTest() {
+    }
 
     @Before
     public void setup() {
         mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
     }
-//
-//    @Before
-//    public void authSetUp(){
-//        Collection<GrantedAuthority> grantedAuthority = Arrays.asList(
-//                new SimpleGrantedAuthority("USER")
-//        );
-//
-//        UserPrincipal userPrincipal = new UserPrincipal(123L,
-//                "Mutush", "daniel@gmail.com",
-//                passwordEncoder.encode("Baraka1234"), grantedAuthority);
-//        when(customUserDetailsService.loadUserById(123L)).thenReturn(userPrincipal);
-//        when(jwtTokenProvider.validateToken(Mockito.anyString())).thenReturn(Boolean.TRUE);
-//    }
-
 
 
     @Test
@@ -102,9 +80,6 @@ public class AuthControllerTest {
         // Arrange
         RegistrationRequest registrationRequest = new RegistrationRequest(
                 "Course1", "daniel@gmail.com", "Baraka1234");
-
-
-//        doNothing().when(authService).register(any(RegistrationRequest.class));
 
         mockMvc.perform(MockMvcRequestBuilders.post("/api/auth/register")
                 .content(toJson(registrationRequest))
@@ -134,7 +109,7 @@ public class AuthControllerTest {
         // Arrange
         RegistrationRequest registrationRequest = registrationRequest();
 
-        when(userRepository.existsByEmail(registrationRequest.getEmail()))
+        Mockito.when(userRepository.existsByEmail(registrationRequest.getEmail()))
                 .thenReturn(true);
 
         //Act & Assert
@@ -145,18 +120,64 @@ public class AuthControllerTest {
     }
 
 
+    @Test
+    public void userLoginSuccessfulWhenAccountExists() throws Exception {
+        LoginRequest loginRequest = loginRequest();
+        Mockito.when(authService.login(loginRequest)).thenReturn(new AuthenticationResponse(
+                "srdtfyuigcvjrvuevqyr", "Mutuba"));
 
+        //Act & Assert
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/auth/login")
+                .content(toJson(loginRequest))
+                .contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andDo(print())
+                .andExpect(content().contentType("application/json"))
+                .andExpect(jsonPath("$.username").value("Mutuba"));
+    }
+
+
+
+    @Test
+    public void userLoginUnsuccessfulWhenWrongAccountDetails() throws Exception {
+        LoginRequest loginRequest = loginRequest();
+        Mockito.when(authService.login(loginRequest)).thenThrow(new BadCredentialsException("Bad credentials"));
+
+        //Act & Assert
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/auth/login")
+                .content(toJson(loginRequest))
+                .contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andDo(print())
+                .andExpect(content().contentType("application/json"))
+                .andExpect(jsonPath("$.error").value("Bad credentials"));
+    }
+
+
+
+    // Utility functions used in the test class
 
     /**
      * Return registrationRequest .
      *
      * @return The registrationRequest object.
-     *
      */
 
-    public RegistrationRequest registrationRequest(){
+    public RegistrationRequest registrationRequest() {
         return new RegistrationRequest(
                 "Course1", "daniel@gmail.com", "Baraka1234");
+
+    }
+
+
+    /**
+     * Return LoginRequest.
+     *
+     * @return The loginRequest object.
+     */
+
+    public LoginRequest loginRequest() {
+        return new LoginRequest("Mutush", "Baraka1234");
 
     }
 
@@ -164,13 +185,11 @@ public class AuthControllerTest {
      * Return an Auth Token.
      *
      * @return The result as a string.
-     *
-     * @throws Exception
-     *             if you got any of the above wrong.
+     * @throws Exception if you got any of the above wrong.
      */
 
 
-    public String authToken(){
+    public String authToken() {
 
         String token = "wqerwtytyjukilroli7ruktyrtrbrntj";
         return token;
