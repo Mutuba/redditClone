@@ -1,9 +1,11 @@
 package com.example.redditClone;
 
+import com.example.redditClone.dto.APIResponse;
 import com.example.redditClone.dto.RegistrationRequest;
 import com.example.redditClone.dto.SubredditDTO;
 import com.example.redditClone.exception.SubredditNotFoundException;
 import com.example.redditClone.models.User;
+import com.example.redditClone.repository.UserRepository;
 import com.example.redditClone.security.JwtTokenProvider;
 import com.example.redditClone.service.AuthService;
 import com.example.redditClone.service.CustomUserDetailsService;
@@ -31,12 +33,14 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 import static org.mockito.ArgumentMatchers.any;
+import static org.junit.Assert.*;
 
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
 import static groovy.json.JsonOutput.toJson;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -54,6 +58,9 @@ public class AuthControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @MockBean
+    UserRepository userRepository;
 
     @MockBean
     AuthService authService;
@@ -74,123 +81,83 @@ public class AuthControllerTest {
     public void setup() {
         mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
     }
-
-    @Before
-    public void authSetUp(){
-        Collection<GrantedAuthority> grantedAuthority = Arrays.asList(
-                new SimpleGrantedAuthority("USER")
-        );
-
-        UserPrincipal userPrincipal = new UserPrincipal(123L,
-                "Mutush", "daniel@gmail.com",
-                passwordEncoder.encode("Baraka1234"), grantedAuthority);
-        when(customUserDetailsService.loadUserById(123L)).thenReturn(userPrincipal);
-        when(jwtTokenProvider.validateToken(Mockito.anyString())).thenReturn(Boolean.TRUE);
-    }
+//
+//    @Before
+//    public void authSetUp(){
+//        Collection<GrantedAuthority> grantedAuthority = Arrays.asList(
+//                new SimpleGrantedAuthority("USER")
+//        );
+//
+//        UserPrincipal userPrincipal = new UserPrincipal(123L,
+//                "Mutush", "daniel@gmail.com",
+//                passwordEncoder.encode("Baraka1234"), grantedAuthority);
+//        when(customUserDetailsService.loadUserById(123L)).thenReturn(userPrincipal);
+//        when(jwtTokenProvider.validateToken(Mockito.anyString())).thenReturn(Boolean.TRUE);
+//    }
 
 
 
     @Test
     public void userSigningUpReturnsCreated() throws Exception {
         // Arrange
-        RegistrationRequest registrationRequest = new RegistrationRequest("Course1", "daniel@gmail.com", "Baraka1234");
+        RegistrationRequest registrationRequest = new RegistrationRequest(
+                "Course1", "daniel@gmail.com", "Baraka1234");
 
-        when(authService.register(any(Mockito.any(RegistrationRequest.class)).thenReturn(mockUser);
 
+//        doNothing().when(authService).register(any(RegistrationRequest.class));
 
-        // Act
-        SignUpRequest signUpRequest = new SignUpRequest();
-        signUpRequest.setName("Mutuba");
-        signUpRequest.setUsername("SpringBootTest");
-        signUpRequest.setEmail("sping@gmail.com");
-        signUpRequest.setPassword("Baraka1234");
-        ResponseEntity<?> responseEntity = authController.registerUser(signUpRequest);
-
-        // Assert
-        assertThat(responseEntity.getStatusCodeValue()).isEqualTo(201);
-        assertThat(responseEntity.getHeaders().getLocation().getPath()).isEqualTo("/api/users/Spring");
-
-    }
-
-    @Test
-    public  void addSubreddit_ShouldReturn_Created_Subreddit() throws Exception{
-        String token = authToken();
-
-        SubredditDTO subredditDTO = SubredditDTO.builder().name("Love").description(
-                "What the fuck"
-        ).build();
-
-        when(jwtTokenProvider.getUserIdFromJWT(token)).thenReturn(123L);
-        when(subredditService.save(Mockito.any(SubredditDTO.class))).thenReturn(subredditDTO);
-
-        // Act & Assert
-
-        mockMvc.perform(MockMvcRequestBuilders.post("/api/subreddit")
-                .header("Authorization", "Bearer " + token)
-                .content(toJson(subredditDTO))
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/auth/register")
+                .content(toJson(registrationRequest))
                 .contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isCreated())
-                .andExpect(content().contentType("application/json"))
-                .andExpect(jsonPath("$.name").value("Love"))
-                .andExpect(jsonPath("$.description").value("What the fuck"));
-    }
-
-
-    @Test
-    public void getAllSubreddits_ShouldReturn_List_of_Subreddits() throws Exception {
-        String token = authToken();
-        when(jwtTokenProvider.getUserIdFromJWT(token)).thenReturn(123L);
-
-        List<SubredditDTO> subredditDTOS = Arrays.asList(
-                SubredditDTO.builder().name("iPhone12").description("The best smartphone ever").build(),
-                SubredditDTO.builder().name("iPhone13").description("The best smartphone ever").build(),
-                SubredditDTO.builder().name("iPhone14").description("The best smartphone ever").build()
-        );
-
-        when(subredditService.getAll()).thenReturn(subredditDTOS);
-
-        mockMvc.perform(MockMvcRequestBuilders
-                .get("/api/subreddit").header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk());
     }
 
 
     @Test
-    public void getSubreddit_ShouldReturn_Found_Subreddit() throws Exception {
-        String token = authToken();
-        when(jwtTokenProvider.getUserIdFromJWT(token)).thenReturn(123L);
+    public void userSignUpFailsIfUsernameIsTaken() throws Exception {
+        // Arrange
+        RegistrationRequest registrationRequest = new RegistrationRequest(
+                "Course1", "daniel@gmail.com", "Baraka1234");
 
-        SubredditDTO subredditDTO =
-                SubredditDTO.builder().name("iPhone12").description("The best smartphone ever").id(123L).build();
+        when(userRepository.existsByUsername(registrationRequest.getUsername()))
+                .thenReturn(true);
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/auth/register")
+                .content(toJson(registrationRequest))
+                .contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
+    }
 
 
-        when(subredditService.getSubreddit(123l)).thenReturn(subredditDTO);
+    @Test
+    public void userSignUpFailsIfEmailIsTaken() throws Exception {
+        // Arrange
+        RegistrationRequest registrationRequest = registrationRequest();
 
-        mockMvc.perform(MockMvcRequestBuilders
-                .get("/api/subreddit/123").header("Authorization", "Bearer " + token)
-                .accept(MediaType.APPLICATION_JSON))
+        when(userRepository.existsByEmail(registrationRequest.getEmail()))
+                .thenReturn(true);
 
-                .andExpect(status().isOk())
-                .andExpect(content().contentType("application/json"))
-                .andExpect(jsonPath("$.name").value("iPhone12"))
-                .andExpect(jsonPath("$.description").value("The best smartphone ever"));
+        //Act & Assert
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/auth/register")
+                .content(toJson(registrationRequest))
+                .contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
     }
 
 
 
-    @Test
-    public void getSubreddit_ShouldReturn_404_Not_Found_For_Non_Existent_Subreddit() throws Exception {
-        String token = authToken();
-        when(jwtTokenProvider.getUserIdFromJWT(token)).thenReturn(123L);
 
-        when(subredditService.getSubreddit(Mockito.anyLong()))
-                .thenThrow(new SubredditNotFoundException("Subreddit not found with id -" + Mockito.anyLong()));
+    /**
+     * Return registrationRequest .
+     *
+     * @return The registrationRequest object.
+     *
+     */
 
-        mockMvc.perform(MockMvcRequestBuilders
-                .get("/api/subreddit/123").header("Authorization", "Bearer " + token)
-                .accept(MediaType.APPLICATION_JSON))
+    public RegistrationRequest registrationRequest(){
+        return new RegistrationRequest(
+                "Course1", "daniel@gmail.com", "Baraka1234");
 
-                .andExpect(status().isNotFound());
     }
 
     /**
@@ -209,18 +176,4 @@ public class AuthControllerTest {
         return token;
     }
 
-    /**
-     * Convert JSON Result to object.
-     *
-     * @param result
-     *            The contents
-     * @param tClass
-     *            The expected object class
-     * @return The result as class.
-     *
-     * @throws Exception
-     *             if you got any of the above wrong.
-     */    <T> T fromJsonResult(MvcResult result, Class<T> tClass) throws Exception {
-        return this.mapper.readValue(result.getResponse().getContentAsString(), tClass);
-    }
 }
