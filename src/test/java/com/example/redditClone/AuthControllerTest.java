@@ -2,7 +2,9 @@ package com.example.redditClone;
 
 import com.example.redditClone.dto.SubredditDTO;
 import com.example.redditClone.exception.SubredditNotFoundException;
+import com.example.redditClone.models.User;
 import com.example.redditClone.security.JwtTokenProvider;
+import com.example.redditClone.service.AuthService;
 import com.example.redditClone.service.CustomUserDetailsService;
 import com.example.redditClone.service.SubredditService;
 import com.example.redditClone.service.UserPrincipal;
@@ -39,7 +41,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
-public class SubredditControllerTest {
+public class AuthControllerTest {
 
     // Used for converting heroes to/from JSON
     private ObjectMapper mapper = new ObjectMapper();
@@ -51,7 +53,7 @@ public class SubredditControllerTest {
     private MockMvc mockMvc;
 
     @MockBean
-    SubredditService subredditService;
+    AuthService authService;
 
     @MockBean
     JwtTokenProvider jwtTokenProvider;
@@ -86,6 +88,27 @@ public class SubredditControllerTest {
 
 
     @Test
+    public void userSigningUpReturnsCreated() throws Exception {
+        // Arrange
+        User mockUser = new User("Course1", "Spring", "daniel@gmail.com", "Baraka1234");
+        when(userRepository.save(any(User.class))).thenReturn(mockUser);
+
+
+        // Act
+        SignUpRequest signUpRequest = new SignUpRequest();
+        signUpRequest.setName("Mutuba");
+        signUpRequest.setUsername("SpringBootTest");
+        signUpRequest.setEmail("sping@gmail.com");
+        signUpRequest.setPassword("Baraka1234");
+        ResponseEntity<?> responseEntity = authController.registerUser(signUpRequest);
+
+        // Assert
+        assertThat(responseEntity.getStatusCodeValue()).isEqualTo(201);
+        assertThat(responseEntity.getHeaders().getLocation().getPath()).isEqualTo("/api/users/Spring");
+
+    }
+
+    @Test
     public  void addSubreddit_ShouldReturn_Created_Subreddit() throws Exception{
         String token = authToken();
 
@@ -106,26 +129,26 @@ public class SubredditControllerTest {
                 .andExpect(content().contentType("application/json"))
                 .andExpect(jsonPath("$.name").value("Love"))
                 .andExpect(jsonPath("$.description").value("What the fuck"));
-}
+    }
 
 
-@Test
+    @Test
     public void getAllSubreddits_ShouldReturn_List_of_Subreddits() throws Exception {
         String token = authToken();
         Mockito.when(jwtTokenProvider.getUserIdFromJWT(token)).thenReturn(123L);
 
-    List<SubredditDTO> subredditDTOS = Arrays.asList(
-            SubredditDTO.builder().name("iPhone12").description("The best smartphone ever").build(),
-            SubredditDTO.builder().name("iPhone13").description("The best smartphone ever").build(),
-            SubredditDTO.builder().name("iPhone14").description("The best smartphone ever").build()
-    );
+        List<SubredditDTO> subredditDTOS = Arrays.asList(
+                SubredditDTO.builder().name("iPhone12").description("The best smartphone ever").build(),
+                SubredditDTO.builder().name("iPhone13").description("The best smartphone ever").build(),
+                SubredditDTO.builder().name("iPhone14").description("The best smartphone ever").build()
+        );
 
-    Mockito.when(subredditService.getAll()).thenReturn(subredditDTOS);
+        Mockito.when(subredditService.getAll()).thenReturn(subredditDTOS);
 
- mockMvc.perform(MockMvcRequestBuilders
-           .get("/api/subreddit").header("Authorization", "Bearer " + token))
-           .andExpect(status().isOk());
-}
+        mockMvc.perform(MockMvcRequestBuilders
+                .get("/api/subreddit").header("Authorization", "Bearer " + token))
+                .andExpect(status().isOk());
+    }
 
 
     @Test
@@ -176,11 +199,11 @@ public class SubredditControllerTest {
      */
 
 
-public String authToken(){
+    public String authToken(){
 
-    String token = "wqerwtytyjukilroli7ruktyrtrbrntj";
-    return token;
-}
+        String token = "wqerwtytyjukilroli7ruktyrtrbrntj";
+        return token;
+    }
 
     /**
      * Convert JSON Result to object.

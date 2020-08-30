@@ -32,4 +32,6 @@ public class SubredditController {
         SubredditDTO  subredditDTO1= subredditService.save(subredditDTO);
         return new ResponseEntity(subredditDTO1, HttpStatus.CREATED);
     }
+
+
 }

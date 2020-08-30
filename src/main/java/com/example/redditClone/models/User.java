@@ -1,7 +1,7 @@
 package com.example.redditClone.models;
 
-import lombok.*;
-import lombok.experimental.Accessors;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import javax.validation.constraints.Email;
@@ -10,7 +10,6 @@ import java.time.Instant;
 
 
 @Data
-//@AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "users")
 @Entity
@@ -31,5 +30,10 @@ public class User {
     private Instant creationDate;
     private boolean accountStatus;
 
+    public User( String username, String email, String password) {
+        this.username = username;
+        this.email = email;
+        this.password = password;
+    }
 
 }
