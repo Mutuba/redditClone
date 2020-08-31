@@ -115,7 +115,6 @@ public class AuthControllerTest {
                 .content(toJson(loginRequest))
                 .contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andDo(print())
                 .andExpect(content().contentType("application/json"))
                 .andExpect(jsonPath("$.username").value("Mutuba"));
     }
@@ -131,7 +130,6 @@ public class AuthControllerTest {
                 .content(toJson(loginRequest))
                 .contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
-                .andDo(print())
                 .andExpect(content().contentType("application/json"))
                 .andExpect(jsonPath("$.error").value("Bad credentials"));
     }
@@ -145,7 +143,6 @@ public class AuthControllerTest {
                 .content(toJson(token))
                 .contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andDo(print())
                 .andExpect(content().contentType("application/json"));
     }
 

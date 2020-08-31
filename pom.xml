@@ -263,7 +263,8 @@
 								<rule>
 									<element>CLASS</element>
 									<excludes>
-										<exclude>com.example.redditClone.RedditCloneApplication</exclude>
+										<exclude>com/example/redditClone/Reddit*</exclude>
+										<exclude>com/example/redditClone/config/Constants</exclude>
 									</excludes>
 									<limits>
 										<limit>
