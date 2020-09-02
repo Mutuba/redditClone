@@ -106,8 +106,11 @@ public class AuthControllerTest {
     @Test
     public void userLoginSuccessfulWhenAccountExists() throws Exception {
         LoginRequest loginRequest = loginRequest();
-        Mockito.when(authService.login(loginRequest)).thenReturn(new AuthenticationResponse(
-                "srdtfyuigcvjrvuevqyr", "Mutuba"));
+        Mockito.when(authService.login(loginRequest)).thenReturn(AuthenticationResponse.builder()
+                .authenticationToken("qdfwdegrbhneb")
+                .refreshToken("wertvv")
+                .username(loginRequest.getUsername())
+                .build());
 
         //Act & Assert
         mockMvc.perform(MockMvcRequestBuilders.post("/api/auth/login")
@@ -115,7 +118,7 @@ public class AuthControllerTest {
                 .contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/json"))
-                .andExpect(jsonPath("$.username").value("Mutuba"));
+                .andExpect(jsonPath("$.username").value("Mutush"));
     }
 
 
