@@ -1,4 +1,4 @@
-package com.example.redditClone;
+package com.example.redditClone.controller;
 
 import com.example.redditClone.dto.SubredditDTO;
 import com.example.redditClone.exception.SubredditNotFoundException;

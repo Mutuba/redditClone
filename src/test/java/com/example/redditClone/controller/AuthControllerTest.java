@@ -1,4 +1,4 @@
-package com.example.redditClone;
+package com.example.redditClone.controller;
 
 import com.example.redditClone.dto.AuthenticationResponse;
 import com.example.redditClone.dto.LoginRequest;
@@ -25,7 +25,6 @@ import org.springframework.web.context.WebApplicationContext;
 
 import static groovy.json.JsonOutput.toJson;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @RunWith(SpringRunner.class)

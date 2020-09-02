@@ -54,6 +54,8 @@ public class JwtTokenProvider {
                 .compact();
     }
 
+
+
     //retrieve username from jwt token
     public Long getUserIdFromJWT(String token) {
         Claims claims = Jwts.parser()
@@ -62,6 +64,18 @@ public class JwtTokenProvider {
                 .getBody();
 
         return Long.parseLong(claims.getSubject());
+    }
+
+    public String generateTokenWithUserName(String username) {
+
+        Date now = new Date();
+        Date expiryDate = new Date(now.getTime() + jwtExpirationInMs);
+        return Jwts.builder()
+                .setSubject(username)
+                .setIssuedAt(new Date())
+                .setExpiration(expiryDate)
+                .signWith(SignatureAlgorithm.HS512, jwtSecret)
+                .compact();
     }
 
 
@@ -81,5 +95,9 @@ public class JwtTokenProvider {
             logger.error("JWT claims string is empty.", ex.getMessage());
         }
         return false;
+    }
+
+    public int getJwtExpirationInMillis() {
+        return jwtExpirationInMs;
     }
 }
