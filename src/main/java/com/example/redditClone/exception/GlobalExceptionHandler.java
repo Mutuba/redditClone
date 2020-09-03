@@ -32,6 +32,19 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(errors, HttpStatus.NOT_FOUND);
     }
 
+
+    @ExceptionHandler(UsernameNotFoundException.class)
+    public ResponseEntity<TimeStampErrorMessage> usernameNotFoundException(UsernameNotFoundException ex,
+                                                                           WebRequest request) {
+        TimeStampErrorMessage errors = new TimeStampErrorMessage();
+        errors.setTimestamp(LocalDateTime.now());
+        errors.setError(ex.getMessage());
+        errors.setStatus(HttpStatus.NOT_FOUND.value());
+        errors.setDetails(request.getDescription(false));
+        return new ResponseEntity<>(errors, HttpStatus.NOT_FOUND);
+    }
+
+
     @ExceptionHandler(ActivationException.class)
     public ResponseEntity<TimeStampErrorMessage> activationException(ActivationException ex,
                                                                      WebRequest request) {

@@ -29,12 +29,11 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 )
 public class Security extends WebSecurityConfigurerAdapter {
 
-    @Autowired
-    CustomUserDetailsService customUserDetailsService;
+    private final CustomUserDetailsService customUserDetailsService;
 
     // checks a user to be first be authenticated
-    @Autowired
-    private JwtAuthenticationEntryPoint unauthorizedHandler;
+
+    private final JwtAuthenticationEntryPoint unauthorizedHandler;
 
 
     @Bean

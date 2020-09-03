@@ -5,6 +5,7 @@ import com.example.redditClone.dto.LoginRequest;
 import com.example.redditClone.dto.RefreshTokenRequest;
 import com.example.redditClone.dto.RegistrationRequest;
 import com.example.redditClone.exception.ActivationException;
+import com.example.redditClone.exception.UsernameNotFoundException;
 import com.example.redditClone.models.AccountVerificationToken;
 import com.example.redditClone.models.NotificationEmail;
 import com.example.redditClone.models.User;
@@ -17,7 +18,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -111,6 +111,8 @@ public class AuthService {
     }
 
 
+
+    @Transactional
     public void enableAccount(AccountVerificationToken token) {
         String username = token.getUser().getUsername();
         User user = userRepository.findByUsername(username)
