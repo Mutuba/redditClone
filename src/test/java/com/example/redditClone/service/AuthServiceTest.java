@@ -4,6 +4,8 @@ import com.example.redditClone.dto.AuthenticationResponse;
 import com.example.redditClone.dto.LoginRequest;
 import com.example.redditClone.dto.RefreshTokenRequest;
 import com.example.redditClone.dto.RegistrationRequest;
+import com.example.redditClone.exception.ActivationException;
+import com.example.redditClone.exception.RefreshException;
 import com.example.redditClone.exception.UsernameNotFoundException;
 import com.example.redditClone.models.AccountVerificationToken;
 import com.example.redditClone.models.RefreshToken;
@@ -19,7 +21,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
@@ -47,6 +51,10 @@ public class AuthServiceTest {
 
     @Autowired
     AuthService authService;
+
+
+    @Autowired
+    RefreshTokenService refreshTokenService;
 
     @Autowired
     private UserRepository userRepository;
@@ -181,6 +189,17 @@ public class AuthServiceTest {
 
     }
 
+
+    @Test(expected = ActivationException.class)
+    public void testVerifyTokenUnSuccessful() throws Exception {
+
+        String token = UUID.randomUUID().toString();
+
+        authService.verifyToken(token);
+        throw new ActivationException("Invalid Activation Token");
+
+    }
+
     @Test
     public void testRefreshToken() throws Exception {
         Collection<GrantedAuthority> grantedAuthority = Arrays.asList(
@@ -211,16 +230,48 @@ public class AuthServiceTest {
     }
 
 
-@Test
-public void testIsLoggedIn() throws  Exception{
-    Authentication authentication = mock(Authentication.class);
-    SecurityContext securityContext = mock(SecurityContext.class);
-    Mockito.when(securityContext.getAuthentication()).thenReturn(authentication);
-    SecurityContextHolder.setContext(securityContext);
-    Mockito.when(authentication.isAuthenticated()).thenReturn(true);
+    @Test(expected = RefreshException.class)
+    public void testRefreshTokenException() throws Exception {
 
-    boolean isLoggedIn = authService.isLoggedIn();
-    assertThat(isLoggedIn).isEqualTo(true);
-}
+        String token = UUID.randomUUID().toString();
+        refreshTokenService.validateRefreshToken(token);
+        throw new RefreshException("Invalid refresh token");
+
+    }
+
+    @Test
+    public void testDeleteRefreshToken() throws Exception {
+        Collection<GrantedAuthority> grantedAuthority = Arrays.asList(
+                new SimpleGrantedAuthority("USER")
+        );
+
+        UserPrincipal userPrincipal = new UserPrincipal(123L,
+                "Mutush", "daniel@gmail.com",
+                passwordEncoder.encode("Baraka1234"), grantedAuthority);
+        Mockito.when(customUserDetailsService.loadUserByUsername(Mockito.anyString())).thenReturn(userPrincipal);
+
+        String token = UUID.randomUUID().toString();
+        RefreshToken refreshToken = new RefreshToken();
+        refreshToken.setToken(token);
+        refreshToken.setCreatedDate(Instant.now());
+        refreshTokenRepository.save(refreshToken);
+
+        refreshTokenService.deleteRefreshToken(token);
+        assertThat(refreshTokenRepository.findByToken(token).equals(Optional.empty()));
+
+
+    }
+
+
+    @Test
+    public void testIsLoggedInReturnsFalse() throws Exception {
+        Authentication authentication = mock(AnonymousAuthenticationToken.class);
+        SecurityContext securityContext = mock(SecurityContext.class);
+        Mockito.when(securityContext.getAuthentication()).thenReturn(authentication);
+        SecurityContextHolder.setContext(securityContext);
+
+        boolean isLoggedIn = authService.isLoggedIn();
+        assertThat(isLoggedIn).isEqualTo(false);
+    }
 
 }
