@@ -29,7 +29,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import javax.swing.*;
+import javax.validation.constraints.AssertTrue;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collection;
@@ -38,7 +38,6 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 
 @SpringBootTest()
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
@@ -86,9 +85,9 @@ public class AuthServiceTest {
     public void shouldGetCurrentUserPrincipal() throws Exception {
 
         User user = new User();
-        user.setUsername("Mutush1");
+        user.setUsername("Mutush");
         user.setPassword(passwordEncoder.encode("Baraka1234"));
-        user.setEmail("daniel1@gmail.com");
+        user.setEmail("daniel@gmail.com");
 
         userRepository.save(user);
 
@@ -97,7 +96,7 @@ public class AuthServiceTest {
         );
 
         UserPrincipal userPrincipal = new UserPrincipal(123L,
-                "Mutush1", "daniel1@gmail.com",
+                "Mutush", "daniel@gmail.com",
                 passwordEncoder.encode("Baraka1234"), grantedAuthority);
 
         Authentication authentication = mock(Authentication.class);
@@ -123,7 +122,7 @@ public class AuthServiceTest {
         );
 
         UserPrincipal userPrincipal = new UserPrincipal(123L,
-                "Mutush1", "daniel1@gmail.com",
+                "Mutush", "daniel@gmail.com",
                 passwordEncoder.encode("Baraka1234"), grantedAuthority);
 
         Authentication authentication = mock(Authentication.class);
@@ -146,11 +145,11 @@ public class AuthServiceTest {
         );
 
         UserPrincipal userPrincipal = new UserPrincipal(123L,
-                "Mutush1", "daniel1@gmail.com",
+                "Mutush", "daniel@gmail.com",
                 passwordEncoder.encode("Baraka1234"), grantedAuthority);
         Mockito.when(customUserDetailsService.loadUserByUsername(Mockito.anyString())).thenReturn(userPrincipal);
 
-        LoginRequest loginRequest = new LoginRequest("Mutush1", "Baraka1234");
+        LoginRequest loginRequest = new LoginRequest("Mutush", "Baraka1234");
 
         AuthenticationResponse authenticationResponse = authService.login(loginRequest);
         Assert.assertNotNull(authenticationResponse.getAuthenticationToken());
@@ -164,9 +163,9 @@ public class AuthServiceTest {
     public void testVerifyTokenSuccess() throws Exception {
 
         User user = new User();
-        user.setUsername("Mutush1");
+        user.setUsername("Mutush");
         user.setPassword(passwordEncoder.encode("Baraka1234"));
-        user.setEmail("daniel1@gmail.com");
+        user.setEmail("daniel@gmail.com");
         userRepository.save(user);
 
         String token = UUID.randomUUID().toString();
@@ -189,7 +188,7 @@ public class AuthServiceTest {
         );
 
         UserPrincipal userPrincipal = new UserPrincipal(123L,
-                "Mutush1", "daniel1@gmail.com",
+                "Mutush", "daniel@gmail.com",
                 passwordEncoder.encode("Baraka1234"), grantedAuthority);
         Mockito.when(customUserDetailsService.loadUserByUsername(Mockito.anyString())).thenReturn(userPrincipal);
 
@@ -200,7 +199,7 @@ public class AuthServiceTest {
         refreshTokenRepository.save(refreshToken);
 
         RefreshTokenRequest refreshTokenRequest = RefreshTokenRequest
-                .builder().refreshToken(token).username("Mutush1").build();
+                .builder().refreshToken(token).username("Mutush").build();
 
 
         AuthenticationResponse authenticationResponse = authService.refreshToken(refreshTokenRequest);
@@ -211,5 +210,17 @@ public class AuthServiceTest {
 
     }
 
+
+@Test
+public void testIsLoggedIn() throws  Exception{
+    Authentication authentication = mock(Authentication.class);
+    SecurityContext securityContext = mock(SecurityContext.class);
+    Mockito.when(securityContext.getAuthentication()).thenReturn(authentication);
+    SecurityContextHolder.setContext(securityContext);
+    Mockito.when(authentication.isAuthenticated()).thenReturn(true);
+
+    boolean isLoggedIn = authService.isLoggedIn();
+    assertThat(isLoggedIn).isEqualTo(true);
+}
 
 }
