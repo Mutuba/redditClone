@@ -92,11 +92,7 @@ public class AuthServiceTest {
     @Test
     public void shouldGetCurrentUserPrincipal() throws Exception {
 
-        User user = new User();
-        user.setUsername("Mutush");
-        user.setPassword(passwordEncoder.encode("Baraka1234"));
-        user.setEmail("daniel@gmail.com");
-
+        User user = new User("Mutush", "daniel@gmail.com", passwordEncoder.encode("Baraka1234"));
         userRepository.save(user);
 
         Collection<GrantedAuthority> grantedAuthority = Arrays.asList(
@@ -170,10 +166,7 @@ public class AuthServiceTest {
     @Test
     public void testVerifyTokenSuccess() throws Exception {
 
-        User user = new User();
-        user.setUsername("Mutush");
-        user.setPassword(passwordEncoder.encode("Baraka1234"));
-        user.setEmail("daniel@gmail.com");
+        User user = new User("Mutush", "daniel@gmail.com", passwordEncoder.encode("Baraka1234"));
         userRepository.save(user);
 
         String token = UUID.randomUUID().toString();
