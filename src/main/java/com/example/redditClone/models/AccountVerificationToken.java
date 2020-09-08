@@ -1,17 +1,14 @@
 package com.example.redditClone.models;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 import java.time.Instant;
 
-@Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
+@Setter
+@Getter
 @Table(name = "token")
 @Entity
 public class AccountVerificationToken {
@@ -22,4 +19,11 @@ public class AccountVerificationToken {
     @OneToOne(fetch = FetchType.LAZY)
     private User user;
     private Instant expirationDate;
+
+    public AccountVerificationToken(String token, User user, Instant expirationDate) {
+        this.token = token;
+        this.user = user;
+        this.expirationDate = expirationDate;
+    }
 }
+

@@ -170,11 +170,9 @@ public class AuthServiceTest {
         userRepository.save(user);
 
         String token = UUID.randomUUID().toString();
-        AccountVerificationToken accountVerificationToken = tokenRepository.save(AccountVerificationToken
-                .builder()
-                .token(token)
-                .user(user)
-                .build());
+        AccountVerificationToken accountVerificationToken = tokenRepository.save(
+                new AccountVerificationToken(token, user, Instant.now())
+        );
 
         authService.verifyToken(token);
 

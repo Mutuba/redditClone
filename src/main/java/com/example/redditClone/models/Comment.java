@@ -1,21 +1,17 @@
 package com.example.redditClone.models;
 
-import com.example.redditClone.models.Post;
-import com.example.redditClone.models.User;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotEmpty;
 import java.time.Instant;
 
-@Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 @Entity
+@Setter
+@Getter
 public class Comment {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
@@ -29,4 +25,30 @@ public class Comment {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "userId", referencedColumnName = "userId")
     private User user;
+
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) {
+            return true;
+        }
+        if (obj == null || obj.getClass() != this.getClass()) {
+            return false;
+        }
+
+        Comment comparator = (Comment) obj;
+        return id == comparator.id && (text == comparator.text || (text != null && text.equals(comparator.getText())));
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((id == null) ? 0 : id.hashCode());
+        result = prime * result;
+        result = prime * result + ((text == null) ? 0 : text.hashCode());
+        return result;
+    }
 }
+
+

@@ -1,5 +1,6 @@
 package com.example.redditClone.models;
 
+import nl.jqno.equalsverifier.EqualsVerifier;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -75,5 +76,4 @@ public class UserEntityTest {
         Assert.assertNotNull(savedUser.getUserId());
         Assert.assertTrue(savedUser.isAccountStatus());
     }
-
 }

@@ -1,20 +1,19 @@
 package com.example.redditClone.models;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.lang.Nullable;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import java.time.Instant;
 
-@Data
+
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
 @Entity
+@Setter
+@Getter
 public class Post {
     @Id
     @SequenceGenerator(name = "POST_GEN", sequenceName = "SEQ_POST", allocationSize = 1)
@@ -38,4 +37,16 @@ public class Post {
     // a sub reddit owns a post and one can have many posts that are either upvoted or downvoted
     // hence a post has many votes
     private Subreddit subreddit;
+
+    public Post(@NotBlank(message = "Post Title is required") String postTitle,
+                @Nullable String url,
+                @Nullable String description,
+                Integer voteCount,
+                Instant creationDate) {
+        this.postTitle = postTitle;
+        this.url = url;
+        this.description = description;
+        this.voteCount = voteCount;
+        this.creationDate = creationDate;
+    }
 }
