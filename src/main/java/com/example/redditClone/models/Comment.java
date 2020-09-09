@@ -5,6 +5,7 @@ import lombok.*;
 import javax.persistence.*;
 import javax.validation.constraints.NotEmpty;
 import java.time.Instant;
+import java.util.Objects;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -37,17 +38,15 @@ public class Comment {
         }
 
         Comment comparator = (Comment) obj;
-        return id == comparator.id && (text == comparator.text || (text != null && text.equals(comparator.getText())));
+        return Objects.equals(this.id, comparator.id);
+
     }
 
     @Override
     public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((id == null) ? 0 : id.hashCode());
-        result = prime * result;
-        result = prime * result + ((text == null) ? 0 : text.hashCode());
-        return result;
+
+//        return Objects.hash(id);
+        return (int) (41 * getId());
     }
 }
 

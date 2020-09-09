@@ -1,6 +1,4 @@
 package com.example.redditClone.models;
-
-import com.example.redditClone.service.UserPrincipal;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -12,6 +10,8 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
+
+import static org.junit.Assert.*;
 
 import java.time.Instant;
 
@@ -106,6 +106,7 @@ public class CommentTest {
                 .text("It was lovely that you wrote again")
                 .post(savedPost)
                 .user(savedUser)
+                .creationDate(Instant.now())
                 .build();
         Comment savedCommment = this.entityManager.merge(comment);
         assertThat(savedCommment.getId()).isNotNull();
@@ -123,7 +124,6 @@ public class CommentTest {
                 .toString();
         assertThat(stringPost).isNotNull();
     }
-
 
 
     @Test
@@ -160,28 +160,33 @@ public class CommentTest {
 
         Assert.assertFalse(savedCommment1.equals(null) || savedCommment1.equals(savedPost));
         Assert.assertTrue(savedCommment1.equals(savedCommment1));
+        Assert.assertTrue(savedCommment1.getId().equals(savedCommment1.getId()));
 
     }
 
-//    @Test
-//    public void testHashCodeMethodContracts() {
-//        User user1 = new User(
-//                "Mutush",
-//                "daniel@gmail.com",
-//                passwordEncoder.encode("Baraka1234")
-//        );
-//
-//        User user2 = new User(
-//                "Mutush1",
-//                "daniel1@gmail.com",
-//                passwordEncoder.encode("Baraka1234")
-//        );
-//        userRepository.save(user1);
-//        userRepository.save(user2);
-//
-//        UserPrincipal userPrincipal1 = UserPrincipal.create(user1);
-//        UserPrincipal userPrincipal2 = UserPrincipal.create(user2);
-//        Assert.assertNotEquals(userPrincipal1.hashCode(), userPrincipal2.hashCode());
-//    }
+    @Test
+    public void testHashCodeMethodContracts() {
+
+        User savedUser = this.entityManager.persistAndFlush(user);
+        Post post = new Post(
+                "Love",
+                "http://127.0.0.1:8000/api/wallet/create",
+                "What a thing",
+                23,
+                Instant.now());
+
+        Post savedPost = this.entityManager.merge(post);
+
+        Comment comment1 = Comment.builder()
+                .id(5L)
+                .text("It was lovely that you wrote again")
+                .post(savedPost)
+                .user(savedUser)
+                .build();
+        Comment savedCommment1 = this.entityManager.merge(comment1);
+        int hashCode = savedCommment1.hashCode();
+        Assert.assertNotNull(hashCode);
+    }
+
 }
 
