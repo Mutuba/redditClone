@@ -2,7 +2,6 @@ package com.example.redditClone.service;
 
 import com.example.redditClone.models.User;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.hibernate.annotations.Immutable;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -13,19 +12,19 @@ import java.util.Objects;
 
 
 public final class UserPrincipal implements UserDetails {
-    private  Long id;
+    private Long id;
 
-    private  String username;
-
-    @JsonIgnore
-    private  String email;
+    private String username;
 
     @JsonIgnore
-    private  String password;
+    private String email;
 
-    private  Collection<? extends GrantedAuthority> authorities;
+    @JsonIgnore
+    private String password;
 
-    public UserPrincipal(Long id,  String username, String email, String password, Collection<? extends GrantedAuthority> authorities) {
+    private Collection<? extends GrantedAuthority> authorities;
+
+    public UserPrincipal(Long id, String username, String email, String password, Collection<? extends GrantedAuthority> authorities) {
         this.id = id;
         this.username = username;
         this.email = email;
@@ -45,7 +44,7 @@ public final class UserPrincipal implements UserDetails {
         );
     }
 
-    private static Collection<? extends GrantedAuthority> createAuthority (String role) {
+    private static Collection<? extends GrantedAuthority> createAuthority(String role) {
         // takes a role name and returns an instance of SimpleGrantedAuthority
         //Returns an immutable list containing only the specified object. The returned list is serializable.
         return Collections.singletonList(new SimpleGrantedAuthority(role));
@@ -94,17 +93,20 @@ public final class UserPrincipal implements UserDetails {
         return true;
     }
 
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (!(o instanceof UserPrincipal)) {
+            return false;
+        }
         UserPrincipal that = (UserPrincipal) o;
-        return Objects.equals(id, that.id);
+        return getUsername().equals(that.getUsername()) &&
+                getEmail().equals(that.getEmail());
     }
 
     @Override
     public int hashCode() {
-
-        return Objects.hash(id);
+        return Objects.hash(getUsername(), getEmail());
     }
 }

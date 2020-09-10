@@ -1,51 +1,27 @@
 
-
 package com.example.redditClone.service;
 
 import com.example.redditClone.models.User;
-import com.example.redditClone.repository.UserRepository;
+import junit.framework.TestCase;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringRunner;
+public class UserPrincipalTest extends TestCase {
 
-@SpringBootTest()
-@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
-@RunWith(SpringRunner.class)
-@ActiveProfiles("test")
-public class UserPrincipalTest {
+    private User user;
 
-    @Autowired
-    private UserRepository userRepository;
-
-
-    @Autowired
-    PasswordEncoder passwordEncoder;
-
-    @MockBean
-    private JavaMailSender sender;
-
+    @Before
+    public void setUp() {
+        user = new User(
+                "Mutuba01",
+                "mutuba@gmail.com",
+                "Thanks for joining subreddit");
+    }
 
     @Test
-    public void shouldCreateUserPrincipal() throws Exception {
-
-        User user = new User(
-                "Mutush",
-                "daniel@gmail.com",
-                passwordEncoder.encode("Baraka1234")
-        );
-        userRepository.save(user);
+    public void testCreateUserPrincipal() {
 
         UserPrincipal userPrincipal = UserPrincipal.create(user);
-
-
         Assert.assertNotNull(userPrincipal.getAuthorities());
         Assert.assertNotNull(userPrincipal.getUsername());
         Assert.assertEquals(user.getUsername(), userPrincipal.getUsername());
@@ -54,50 +30,42 @@ public class UserPrincipalTest {
 
     @Test
     public void testEqualsMethodContracts() {
-
-        User user1 = new User(
-                "Mutush",
+        UserPrincipal userPrincipal1 = UserPrincipal.create(user);
+        UserPrincipal userPrincipal2 = UserPrincipal.create(new User(
+                "Ashah",
+                "mutuba@gmail.com",
+                "Baraka1234"));
+        UserPrincipal userPrincipal3 = UserPrincipal.create(new User(
+                "Ashah",
                 "daniel@gmail.com",
-                passwordEncoder.encode("Baraka1234")
-        );
-        userRepository.save(user1);
+                "Baraka1234"));
 
-        User user2 = new User(
-                "Mutush1",
-                "daniel1@gmail.com",
-                passwordEncoder.encode("Baraka1234")
-        );
-        userRepository.save(user2);
+        // assert this == o (same reference or identity)
+        Assert.assertEquals(userPrincipal1, userPrincipal1);
 
-        UserPrincipal userPrincipal1 = UserPrincipal.create(user1);
-        UserPrincipal userPrincipal2 = UserPrincipal.create(user2);
+        // assert different identities but same values
+        Assert.assertEquals(userPrincipal1, UserPrincipal.create(user));
+
+        // based on different class
+        Assert.assertNotEquals(userPrincipal1, User.class);
+        // null check
+        Assert.assertNotEquals(userPrincipal1, null);
+
+        // assert false based on username for equality
         Assert.assertNotEquals(userPrincipal1, userPrincipal2);
 
-        Assert.assertFalse(userPrincipal1.equals(user1) || userPrincipal1.equals(null));
-        Assert.assertTrue(userPrincipal1.equals(userPrincipal1));
+        // based on different email
+        Assert.assertNotEquals(userPrincipal2, userPrincipal3);
+
 
     }
 
     @Test
-    public void testHashCodeMethodContracts() {
-        User user1 = new User(
-                "Mutush",
-                "daniel@gmail.com",
-                passwordEncoder.encode("Baraka1234")
-        );
+    public void testHashCodeMethodContact(){
+        UserPrincipal userPrincipal = UserPrincipal.create(user);
+        int hashCode = userPrincipal.hashCode();
 
-        User user2 = new User(
-                "Mutush1",
-                "daniel1@gmail.com",
-                passwordEncoder.encode("Baraka1234")
-        );
-        userRepository.save(user1);
-        userRepository.save(user2);
+        Assert.assertEquals(userPrincipal.hashCode(), hashCode);
 
-        UserPrincipal userPrincipal1 = UserPrincipal.create(user1);
-        UserPrincipal userPrincipal2 = UserPrincipal.create(user2);
-        Assert.assertNotEquals(userPrincipal1.hashCode(), userPrincipal2.hashCode());
     }
-
-
 }

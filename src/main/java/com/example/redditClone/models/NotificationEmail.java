@@ -16,9 +16,7 @@ public class NotificationEmail {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-//        if (!(o instanceof NotificationEmail)) return false;
-
-        if (o == null || getClass() != o.getClass()) {
+        if (! (o instanceof NotificationEmail)) {
             return false;
         }
 

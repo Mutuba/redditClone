@@ -53,7 +53,7 @@ public class NotificationEmailTest extends TestCase {
         Assert.assertNotEquals (mutubaNotificationEmail, null);
 
         // same object (this == o) i.e same identity
-//        Assert.assertEquals (mutubaNotificationEmail, mutubaNotificationEmail);
+        Assert.assertEquals (mutubaNotificationEmail, mutubaNotificationEmail);
 
         // different class assertion
         Assert.assertNotEquals(mutubaNotificationEmail, User.class);
