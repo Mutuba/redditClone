@@ -1,5 +1,6 @@
 package com.example.redditClone.models;
 
+import nl.jqno.equalsverifier.EqualsVerifier;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -13,6 +14,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.not;
 
 @RunWith(SpringRunner.class)
 @DataJpaTest
@@ -38,12 +40,27 @@ public class NotificationEmailTest {
 
     @Test
     public void testCreateCommentWithAllArgsConstructorArgs() {
-        NotificationEmail savedNotificationEmail = this.entityManager.persistAndFlush(notificationEmail);
-
-        assertThat(savedNotificationEmail.getRecepient()).isEqualTo("daniel@gmail.com");
-        assertThat(savedNotificationEmail.getSubject()).isEqualTo("Account Activation");
-        assertThat(savedNotificationEmail.getBody()).isEqualTo("Thanks for joining subreddit");
+        assertThat(notificationEmail.getRecepient()).isEqualTo("daniel@gmail.com");
+        assertThat(notificationEmail.getSubject()).isEqualTo("Account Activation");
+        assertThat(notificationEmail.getBody()).isEqualTo("Thanks for joining subreddit");
     }
+
+
+    @Test
+    public void testCreateNotificationEmailUsingSetterMethod() {
+        NotificationEmail notificationEmail = new NotificationEmail();
+        notificationEmail.setSubject("New Account Creation Notification");
+        notificationEmail.setRecepient("daniel@gmail.com");
+        notificationEmail.setBody("Thank you for creating an account with us. We look forward to awesome articles");
+        assertThat(notificationEmail.getRecepient()).isEqualTo("daniel@gmail.com");
+
+    }
+
+    @Test
+    public void equalsHashCodeContracts() {
+        EqualsVerifier.forClass(NotificationEmail.class).verify();
+    }
+
 
 //    @Test
 //    public void testEqualsMethodContracts() {
@@ -68,13 +85,11 @@ public class NotificationEmailTest {
 //        Assert.assertNotNull(hashCode);
 //    }
 //
-//    @Test
-//    public void testCreateVoteWithBuilderPatternToString() {
-//        RefreshToken savedRefreshToken = this.entityManager.merge(refreshToken);
-//
-//        String stringPost = savedRefreshToken.toString();
-//        assertThat(stringPost).isNotNull();
-//    }
+    @Test
+    public void testCreateVoteWithBuilderPatternToString() {
+        String stringPost = notificationEmail.toString();
+        assertThat(stringPost).isNotNull();
+    }
 
 
 }
