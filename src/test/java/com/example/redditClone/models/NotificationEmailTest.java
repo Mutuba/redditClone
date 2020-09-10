@@ -1,31 +1,13 @@
 package com.example.redditClone.models;
 
-import nl.jqno.equalsverifier.EqualsVerifier;
+import junit.framework.TestCase;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.not;
 
-@RunWith(SpringRunner.class)
-@DataJpaTest
-@ActiveProfiles("test")
-public class NotificationEmailTest {
-
-    @Autowired
-    private TestEntityManager entityManager;
-
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
+public class NotificationEmailTest extends TestCase {
 
     private NotificationEmail notificationEmail;
 
@@ -56,35 +38,44 @@ public class NotificationEmailTest {
 
     }
 
+
     @Test
-    public void equalsHashCodeContracts() {
-        EqualsVerifier.forClass(NotificationEmail.class).verify();
+    public void testEqualsMethodContracts() {
+        NotificationEmail mutubaNotificationEmail = new NotificationEmail("Account Activation",
+                "mutuba@gmail.com",
+                "Thanks for joining subreddit");
+
+        NotificationEmail danNotificationEmail = new NotificationEmail("Account Activation",
+                "daniel@gmail.com",
+                "Thanks for joining subreddit");
+
+        // null check
+        Assert.assertNotEquals (mutubaNotificationEmail, null);
+
+        // same object (this == o) i.e same identity
+//        Assert.assertEquals (mutubaNotificationEmail, mutubaNotificationEmail);
+
+        // different class assertion
+        Assert.assertNotEquals(mutubaNotificationEmail, User.class);
+
+        // passed in class has same attributes as the o, i.e equivalence based on value not identity
+        Assert.assertEquals(mutubaNotificationEmail, new NotificationEmail(
+                "Account Activation",
+                "mutuba@gmail.com",
+                "Thanks for joining subreddit"));
+
+        // passed in class has different attributes as the o, i.e equivalence based on value not identity
+        // to assert the && case (different body fails equality check)
+        Assert.assertNotEquals(mutubaNotificationEmail, new NotificationEmail("Account Activation",
+                "mutuba@gmail.com",
+                "Thanks for joining subreddit2"));
+
+        // assert different subjects fails equality check
+        Assert.assertNotEquals(mutubaNotificationEmail, danNotificationEmail);
+
     }
 
 
-//    @Test
-//    public void testEqualsMethodContracts() {
-//        RefreshToken refreshToken1  = new RefreshToken(12L, "simpletoken1", Instant.now());
-//        RefreshToken savedRefreshToken1 = this.entityManager.merge(refreshToken);
-//
-//        RefreshToken savedRefreshToken2 = this.entityManager.merge(refreshToken1);
-//
-//        Assert.assertNotEquals(savedRefreshToken1, savedRefreshToken2);
-//
-//        Assert.assertFalse(savedRefreshToken2.equals(null) || savedRefreshToken2.equals(User.class));
-//        Assert.assertTrue(savedRefreshToken2.equals(savedRefreshToken2));
-//        Assert.assertTrue(savedRefreshToken2.getId().equals(savedRefreshToken2.getId()));
-//
-//    }
-//
-//    @Test
-//    public void testHashCodeMethodContracts() {
-//
-//        RefreshToken savedRefreshToken1 = this.entityManager.merge(refreshToken);
-//        int hashCode = savedRefreshToken1.hashCode();
-//        Assert.assertNotNull(hashCode);
-//    }
-//
     @Test
     public void testCreateVoteWithBuilderPatternToString() {
         String stringPost = notificationEmail.toString();
