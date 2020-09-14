@@ -20,7 +20,6 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -60,9 +59,6 @@ public class AuthServiceTest {
 
     @Autowired
     PasswordEncoder passwordEncoder;
-
-    @MockBean
-    private JavaMailSender sender;
 
     @MockBean
     CustomUserDetailsService customUserDetailsService;
