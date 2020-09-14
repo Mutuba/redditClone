@@ -16,7 +16,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -55,9 +54,6 @@ public class SubredditControllerTest {
 
     @MockBean
     JwtTokenProvider jwtTokenProvider;
-
-    @MockBean
-    private JavaMailSender sender;
 
     @MockBean
     CustomUserDetailsService customUserDetailsService;
