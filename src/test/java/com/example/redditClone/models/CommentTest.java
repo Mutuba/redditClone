@@ -1,4 +1,5 @@
 package com.example.redditClone.models;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -10,8 +11,6 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
-
-import static org.junit.Assert.*;
 
 import java.time.Instant;
 

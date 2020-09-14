@@ -22,6 +22,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.mail.MessagingException;
 import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
@@ -46,7 +47,7 @@ public class AuthService {
 
 
     @Transactional
-    public void register(RegistrationRequest registerRequest) {
+    public void register(RegistrationRequest registerRequest) throws MessagingException {
 
         User user = new User();
         user.setUsername(registerRequest.getUsername());

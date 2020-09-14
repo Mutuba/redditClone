@@ -46,9 +46,6 @@ public class AuthControllerTest {
     @MockBean
     AuthService authService;
 
-    @MockBean
-    private JavaMailSender sender;
-
     public AuthControllerTest() {
     }
 
