@@ -106,18 +106,15 @@ public class AuthService {
 
 
     public void verifyToken(String token) {
-        Optional<AccountVerificationToken> verificationToken = tokenRepository.findByToken(token);
-        verificationToken.orElseThrow(() -> new ActivationException("Invalid Activation Token"));
-        enableAccount(verificationToken.get());
+        AccountVerificationToken accountVerificationToken = tokenRepository
+                .findByToken(token).orElseThrow(() -> new ActivationException("Invalid Activation Token"));
+        enableAccount(accountVerificationToken);
     }
-
 
 
     @Transactional
     public void enableAccount(AccountVerificationToken token) {
-        String username = token.getUser().getUsername();
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new ActivationException("User not found with username: " + username));
+        User user = token.getUser();
         user.setAccountStatus(true);
         userRepository.save(user);
     }

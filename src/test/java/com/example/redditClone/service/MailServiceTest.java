@@ -1,93 +1,103 @@
-//package com.example.redditClone.service;
-//
-//import com.example.redditClone.models.NotificationEmail;
-//import org.junit.After;
-//import org.junit.Assert;
-//import org.junit.Before;
-//import org.junit.Test;
-//import org.junit.jupiter.api.BeforeEach;
-//import org.junit.runner.RunWith;
-//import org.mockito.Mock;
-//import org.mockito.Mockito;
-//import org.springframework.beans.factory.annotation.Autowired;
-//import org.springframework.boot.test.context.SpringBootTest;
-//import org.springframework.boot.test.mock.mockito.MockBean;
-//import org.springframework.mail.javamail.JavaMailSender;
-//import org.springframework.mail.javamail.MimeMessageHelper;
-//import org.springframework.mail.javamail.MimeMessagePreparator;
-//import org.springframework.test.context.ActiveProfiles;
-//import org.springframework.test.context.junit4.SpringRunner;
-//import static org.mockito.Mockito.mock;
-//
-//import javax.mail.Session;
-//import javax.mail.internet.MimeMessage;
-//
-//import java.io.ByteArrayOutputStream;
-//import java.io.PrintStream;
-//
-//import static org.mockito.Mockito.times;
-//
-//@SpringBootTest()
-//@RunWith(SpringRunner.class)
-//@ActiveProfiles("test")
-//public class MailServiceTest {
-//
-//    @Mock
-//    private JavaMailSender javaMailSender;
-//
-//    @Autowired
-//    private MailBuilder mailBuilder;
-//
-//    private NotificationEmail notificationEmail;
-//
-//    @Autowired
-//    MailService mailService;
-//
-//    @Before
-//    public void setUp() {
-//
-//        String message1 = mailBuilder.build("Welcome to React-Spring-Reddit Clone");
-//
-//        notificationEmail = new NotificationEmail(
-//                "Account Activation",
-//                "daniel@gmail.com", message1);
-//    }
-//
-////    @Before
-////    public void before() {
-////        mimeMessage = new MimeMessage((Session)null);
-//////        javaMailSender = mock(JavaMailSender.class);
-//////        Mockito.when(javaMailSender.createMimeMessage()).thenReturn(mimeMessage);
-////    }
-////        @Test
-////    public void  testSendMailMethod() throws Exception {
-////        MimeMessagePreparator messagePreparator = mock(MimeMessagePreparator.class);
-////        MimeMessage mimeMessage = mock(MimeMessage.class);
-////        MimeMessageHelper mimeMessageHelper= new MimeMessageHelper(mimeMessage);
-////        mailService.
-////
-////        Mockito.doNothing().when(messagePreparator).prepare(mimeMessage);
-////
-//////        Mockito.doNothing().when(javaMailSender).send(Mockito.any(MimeMessagePreparator.class));
-//////        messagePreparator.prepare(mimeMessage);
-////        mailService.sendEmail(notificationEmail);
-////        Mockito.verify(messagePreparator, times(1)).prepare(mimeMessage);
-////
-////    }
-//
-//    @Test
-//    public void testSendMimeMessagePreparatorObject() throws Exception {
-//        Mockito.doNothing().when(javaMailSender).send(Mockito.any(MimeMessagePreparator.class));
-//        mailService.sendEmail(notificationEmail);
-//
-////        Assert.assertEquals("Activation Email Sent", outContent.toString());
-//        Mockito.verify(javaMailSender, times(1)).send(Mockito.any(MimeMessagePreparator.class));
-//
-////        Mockito.verify(messagePreparator, times(1)).prepare(Mockito.any(MimeMessage.class));
-////        Mockito.verify(mimeMessageHelper, times(1)).setSubject(notificationEmail.getRecepient());
-////        Assert.assertNotNull(MimeMessageHelper mimeMessageHelper.getMimeMessage());
-//
-//
-//    }
-//}
-//
+package com.example.redditClone.service;
+
+import com.example.redditClone.exception.ActivationException;
+import com.example.redditClone.models.NotificationEmail;
+import com.icegreen.greenmail.util.GreenMail;
+import com.icegreen.greenmail.util.ServerSetupTest;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.mail.MailSendException;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.mail.javamail.MimeMessagePreparator;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.junit4.SpringRunner;
+
+import javax.annotation.Resource;
+import javax.mail.Message;
+import javax.mail.MessagingException;
+
+import static org.junit.Assert.assertEquals;
+
+@SpringBootTest()
+@RunWith(SpringRunner.class)
+@ActiveProfiles("test")
+public class MailServiceTest {
+
+    @Resource
+    private JavaMailSender javaMailSender;
+
+    private NotificationEmail notificationEmail;
+
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
+
+    private GreenMail greenMail;
+
+
+    @Before
+    public void mailSetUp() {
+
+        greenMail = new GreenMail(ServerSetupTest.SMTP);
+        greenMail.start();
+    }
+
+    @After
+    public void after() {
+        greenMail.stop();
+    }
+
+    @Before
+    public void setUp() {
+        notificationEmail = new NotificationEmail(
+                "Account Activation",
+                "daniel@gmail.com", "Welcome to React-Spring-Reddit Clone");
+    }
+
+
+    @Test()
+    public void testSendEmailSuccesful() throws InterruptedException, MessagingException {
+
+        MimeMessagePreparator messagePreparator = mimeMessage -> {
+            MimeMessageHelper messageHelper = new MimeMessageHelper(mimeMessage);
+            messageHelper.setFrom("springreddit@email.com");
+            messageHelper.setTo(notificationEmail.getRecepient());
+            messageHelper.setSubject(notificationEmail.getSubject());
+            messageHelper.setText(notificationEmail.getBody());
+        };
+
+        try {
+            javaMailSender.send(messagePreparator);
+        } catch (MailSendException e) {
+            throw new ActivationException("Error sending activation email to "
+                    + notificationEmail.getRecepient());
+        }
+
+        Message[] messages = greenMail.getReceivedMessages();
+        assertEquals(1, messages.length);
+    }
+
+    @Test(expected = ActivationException.class)
+    public void testActivationException() {
+
+        MimeMessagePreparator messagePreparator = mimeMessage -> {
+            MimeMessageHelper messageHelper = new MimeMessageHelper(mimeMessage);
+            messageHelper.setFrom("springreddit@email.com");
+            messageHelper.setText(notificationEmail.getBody());
+        };
+
+        try {
+            javaMailSender.send(messagePreparator);
+        } catch (MailSendException e) {
+            throw new ActivationException("Error sending activation email to "
+                    + notificationEmail.getRecepient());
+        }
+    }
+}
+
