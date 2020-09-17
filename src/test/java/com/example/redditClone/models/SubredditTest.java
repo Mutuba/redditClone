@@ -66,7 +66,6 @@ public class SubredditTest {
 
     @Test
     public void testCreatePostWithSetterMethods() {
-        User savedUser = this.entityManager.persistAndFlush(user);
         Subreddit subreddit = new Subreddit();
         subreddit.setId(123L);
         subreddit.setName("Love");

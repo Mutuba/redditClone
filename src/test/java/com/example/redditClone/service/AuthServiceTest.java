@@ -38,8 +38,6 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 
 @SpringBootTest()
@@ -84,18 +82,15 @@ public class AuthServiceTest {
 
 
     @Test
-    public void shouldGetCurrentUserPrincipal() throws Exception {
-
-        User user = new User("Mutush", "daniel@gmail.com", passwordEncoder.encode("Baraka1234"));
-        userRepository.save(user);
-
-        Collection<GrantedAuthority> grantedAuthority = Arrays.asList(
-                new SimpleGrantedAuthority("USER")
+    public void shouldGetCurrentUserPrincipal(){
+        userRepository.save(new User(
+                        "Mutush",
+                        "daniel@gmail.com",
+                        passwordEncoder.encode("Baraka1234")
+                )
         );
 
-        UserPrincipal userPrincipal = new UserPrincipal(123L,
-                "Mutush", "daniel@gmail.com",
-                passwordEncoder.encode("Baraka1234"), grantedAuthority);
+        UserPrincipal userPrincipal = createPrincipal();
 
         Authentication authentication = mock(Authentication.class);
         SecurityContext securityContext = mock(SecurityContext.class);
@@ -115,13 +110,7 @@ public class AuthServiceTest {
     @Test(expected = UsernameNotFoundException.class)
     public void shouldThrowUsernameNotFoundExceptionWhenUserDoesNotExist() {
 
-        Collection<GrantedAuthority> grantedAuthority = Arrays.asList(
-                new SimpleGrantedAuthority("USER")
-        );
-
-        UserPrincipal userPrincipal = new UserPrincipal(123L,
-                "Mutush", "daniel@gmail.com",
-                passwordEncoder.encode("Baraka1234"), grantedAuthority);
+        UserPrincipal userPrincipal = createPrincipal();
 
         Authentication authentication = mock(Authentication.class);
         SecurityContext securityContext = mock(SecurityContext.class);
@@ -136,15 +125,9 @@ public class AuthServiceTest {
 
 
     @Test
-    public void shouldLoginUserSuccessfullyForCorrectUsernameAndPassword() throws Exception {
+    public void shouldLoginUserSuccessfullyForCorrectUsernameAndPassword(){
 
-        Collection<GrantedAuthority> grantedAuthority = Arrays.asList(
-                new SimpleGrantedAuthority("USER")
-        );
-
-        UserPrincipal userPrincipal = new UserPrincipal(123L,
-                "Mutush", "daniel@gmail.com",
-                passwordEncoder.encode("Baraka1234"), grantedAuthority);
+        UserPrincipal userPrincipal = createPrincipal();
         Mockito.when(customUserDetailsService.loadUserByUsername(Mockito.anyString())).thenReturn(userPrincipal);
 
         LoginRequest loginRequest = new LoginRequest("Mutush", "Baraka1234");
@@ -160,8 +143,12 @@ public class AuthServiceTest {
     @Test
     public void shouldVerifyAccountVerificationTokenSuccessfullyForValidTokens() {
 
-        User user = new User("Mutush1", "daniel1@gmail.com", passwordEncoder.encode("Baraka1234"));
-        userRepository.save(user);
+        User user = userRepository.save(new User(
+                        "Mutush1",
+                        "daniel1@gmail.com",
+                        passwordEncoder.encode("Baraka1234")
+                )
+        );
 
         String token = UUID.fromString("00000000-000-0000-0000-000000000001").toString();
         AccountVerificationToken accountVerificationToken = tokenRepository.save(
@@ -184,13 +171,7 @@ public class AuthServiceTest {
 
     @Test
     public void shouldValidateRefreshTokenSuccessfully() {
-        Collection<GrantedAuthority> grantedAuthority = Arrays.asList(
-                new SimpleGrantedAuthority("USER")
-        );
-
-        UserPrincipal userPrincipal = new UserPrincipal(123L,
-                "Mutush", "daniel@gmail.com",
-                passwordEncoder.encode("Baraka1234"), grantedAuthority);
+        UserPrincipal userPrincipal = createPrincipal();
         Mockito.when(customUserDetailsService.loadUserByUsername(Mockito.anyString())).thenReturn(userPrincipal);
 
         String token = UUID.fromString("00000000-000-0000-0000-000000000001").toString();
@@ -221,16 +202,11 @@ public class AuthServiceTest {
 
     @Test
     public void shouldDeleteRefreshTokenWhenRefreshTokenExists() {
-        Collection<GrantedAuthority> grantedAuthority = Arrays.asList(
-                new SimpleGrantedAuthority("USER")
-        );
 
-        UserPrincipal userPrincipal = new UserPrincipal(123L,
-                "Mutush", "daniel@gmail.com",
-                passwordEncoder.encode("Baraka1234"), grantedAuthority);
+        UserPrincipal userPrincipal = createPrincipal();
         Mockito.when(customUserDetailsService.loadUserByUsername(Mockito.anyString())).thenReturn(userPrincipal);
 
-        String token = UUID.randomUUID().toString();
+        String token = UUID.fromString("00000000-000-0000-0000-000000000001").toString();
         RefreshToken refreshToken = new RefreshToken();
         refreshToken.setToken(token);
         refreshToken.setCreatedDate(Instant.ofEpochSecond(1550000002));
@@ -247,13 +223,25 @@ public class AuthServiceTest {
     public void shouldReturnFalseWhenAuthenticationIsEmpty() {
         Authentication authentication = mock(AnonymousAuthenticationToken.class);
         authentication.setAuthenticated(false);
-        SecurityContext securityContext = mock(SecurityContext.class);
-        Mockito.when(securityContext.getAuthentication()).thenReturn(authentication);
-        SecurityContextHolder.setContext(securityContext);
-        assertFalse(authService.isLoggedIn());
-        assertTrue(!authentication.isAuthenticated() && authentication instanceof AnonymousAuthenticationToken);
-        assertTrue(authentication instanceof AnonymousAuthenticationToken);
-        assertFalse(authentication.isAuthenticated());
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        boolean isLoggedIn = authService.isLoggedIn();
+        assertThat(isLoggedIn).isEqualTo(false);
+
+
     }
+
+    // Helper function
+
+    public UserPrincipal createPrincipal() {
+        Collection<GrantedAuthority> grantedAuthority = Arrays.asList(
+                new SimpleGrantedAuthority("USER")
+        );
+
+        return new UserPrincipal(123L,
+                "Mutush", "daniel@gmail.com",
+                passwordEncoder.encode("Baraka1234"), grantedAuthority);
+    }
+
 
 }
