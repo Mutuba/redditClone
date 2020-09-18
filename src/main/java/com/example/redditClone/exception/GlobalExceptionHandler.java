@@ -72,6 +72,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("timestamp", LocalDateTime.now());
         body.put("status", status.value());
+//        body.put("exception", ex.getClass().getName());
 
         //Get all fields errors
         List<String> errors = ex.getBindingResult()
@@ -81,7 +82,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 .collect(Collectors.toList());
 
         body.put("errors", errors);
-
         return new ResponseEntity<>(body, headers, status);
 
     }

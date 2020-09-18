@@ -98,6 +98,24 @@ public class AuthControllerTest {
 
 
     @Test
+    public void shouldRaiseMethodArgumentNotValidExceptionWithBadRequestWhenParamsValidationFails() throws Exception {
+
+        RegistrationRequest registrationRequest = new RegistrationRequest();
+        registrationRequest.setUsername("Mutuba");
+        registrationRequest.setEmail("daniel@gmail.com");
+
+        //Act & Assert
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/auth/register")
+                .content(toJson(registrationRequest))
+                .contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("status").value(400))
+                .andExpect(jsonPath("errors").value("password field must not be blank"));
+
+    }
+
+
+    @Test
     public void userLoginSuccessfulWhenAccountExists() throws Exception {
         LoginRequest loginRequest = loginRequest();
         Mockito.when(authService.login(loginRequest)).thenReturn(AuthenticationResponse.builder()
