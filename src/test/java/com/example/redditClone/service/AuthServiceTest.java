@@ -74,7 +74,8 @@ public class AuthServiceTest {
 
         authService.register(registrationRequest);
 
-        Optional<User> foundUser = userRepository.findByUsername(registrationRequest.getUsername());
+        Optional<User> foundUser = userRepository
+                .findByUsername(registrationRequest.getUsername());
         Assert.assertNotNull(foundUser.get());
         assertThat(foundUser.get().getEmail())
                 .isEqualTo(registrationRequest.getEmail());
@@ -97,7 +98,8 @@ public class AuthServiceTest {
         Mockito.when(securityContext.getAuthentication()).thenReturn(authentication);
 
         SecurityContextHolder.setContext(securityContext);
-        Mockito.when(SecurityContextHolder.getContext().getAuthentication().getPrincipal()).thenReturn(userPrincipal);
+        Mockito.when(SecurityContextHolder.getContext()
+                .getAuthentication().getPrincipal()).thenReturn(userPrincipal);
 
         User currentUser = authService.getCurrentUser();
 

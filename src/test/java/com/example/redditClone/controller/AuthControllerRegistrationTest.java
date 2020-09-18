@@ -1,13 +1,11 @@
 package com.example.redditClone.controller;
+
 import com.example.redditClone.dto.RegistrationRequest;
-import com.example.redditClone.repository.UserRepository;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -16,57 +14,46 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import static groovy.json.JsonOutput.toJson;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @RunWith(SpringRunner.class)
 @WebAppConfiguration
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
-public class RegistrationTest {
+public class AuthControllerRegistrationTest {
 
     @Autowired
     MockMvc mockMvc;
 
-    @MockBean
-    UserRepository userRepository;
-
     @Test
-    public void userSignUpShouldFailIfUsernameIsTaken() throws Exception {
+    public void shouldReturnCreatedIfRegistrationRequestIsOk() throws Exception {
         // Arrange
         RegistrationRequest registrationRequest = new RegistrationRequest(
-                "Course1", "daniel@gmail.com", "Baraka1234");
-
-        Mockito.when(userRepository.existsByUsername(registrationRequest.getUsername()))
-                .thenReturn(true);
+                "MutubaDan", "daniel14@gmail.com", "Baraka1234");
 
         mockMvc.perform(MockMvcRequestBuilders.post("/api/auth/register")
                 .content(toJson(registrationRequest))
                 .contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isOk());
     }
 
 
     @Test
-    public void userSignUpShouldFailIfEmailIsTaken() throws Exception {
-        // Arrange
-        RegistrationRequest registrationRequest = registrationRequest();
+    public void shouldRaiseMethodArgumentNotValidExceptionWithBadRequestWhenParamsValidationFails() throws Exception {
 
-        Mockito.when(userRepository.existsByEmail(registrationRequest.getEmail()))
-                .thenReturn(true);
+        RegistrationRequest registrationRequest = new RegistrationRequest();
+        registrationRequest.setUsername("Mutuba");
+        registrationRequest.setEmail("daniel@gmail.com");
 
         //Act & Assert
         mockMvc.perform(MockMvcRequestBuilders.post("/api/auth/register")
                 .content(toJson(registrationRequest))
                 .contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
-    }
-
-
-    // helper functions
-    public RegistrationRequest registrationRequest() {
-        return new RegistrationRequest(
-                "Course1", "daniel@gmail.com", "Baraka1234");
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("status").value(400))
+                .andExpect(jsonPath("errors").value("password field must not be blank"));
 
     }
 

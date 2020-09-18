@@ -55,7 +55,6 @@ public class AuthService {
         user.setPassword(encodePassword(registerRequest.getPassword()));
         user.setCreationDate(Instant.now());
         user.setAccountStatus(false);
-
         userRepository.save(user);
 
         String token = generateVerificationToken(user);
@@ -117,8 +116,6 @@ public class AuthService {
         User user = token.getUser();
         user.setAccountStatus(true);
         userRepository.save(user);
-
-        System.out.println("Daniel");
 
     }
 
