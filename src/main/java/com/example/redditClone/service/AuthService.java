@@ -117,6 +117,9 @@ public class AuthService {
         User user = token.getUser();
         user.setAccountStatus(true);
         userRepository.save(user);
+
+        System.out.println("Daniel");
+
     }
 
     public AuthenticationResponse refreshToken(RefreshTokenRequest refreshTokenRequest) {

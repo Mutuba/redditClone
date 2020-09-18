@@ -1,11 +1,13 @@
 package com.example.redditClone.controller;
 
-import com.example.redditClone.dto.AuthenticationResponse;
 import com.example.redditClone.dto.LoginRequest;
 import com.example.redditClone.dto.RegistrationRequest;
+import com.example.redditClone.models.AccountVerificationToken;
+import com.example.redditClone.models.User;
+import com.example.redditClone.repository.TokenRepository;
 import com.example.redditClone.repository.UserRepository;
-import com.example.redditClone.service.AuthService;
-import org.junit.Before;
+import com.example.redditClone.service.CustomUserDetailsService;
+import com.example.redditClone.service.UserPrincipal;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -14,46 +16,53 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
+
+import static org.mockito.Mockito.mock;
+
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Optional;
 
 import static groovy.json.JsonOutput.toJson;
-import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
+@WebAppConfiguration
 public class AuthControllerTest {
-
-    @Autowired
-    private WebApplicationContext webApplicationContext;
 
     @Autowired
     private MockMvc mockMvc;
 
-    @MockBean
+    @Autowired
+    PasswordEncoder passwordEncoder;
+
+    @Autowired
     UserRepository userRepository;
 
     @MockBean
-    AuthService authService;
+    TokenRepository tokenRepository;
+
+    @MockBean
+    CustomUserDetailsService customUserDetailsService;
+
 
     public AuthControllerTest() {
     }
 
-    @Before
-    public void setup() {
-        mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
-    }
 
     @Test
-    public void userSigningUpReturnsCreated() throws Exception {
+    public void shouldReturnCreatedIfRegistrationRequestisOk() throws Exception {
         // Arrange
         RegistrationRequest registrationRequest = new RegistrationRequest(
                 "Course1", "daniel@gmail.com", "Baraka1234");
@@ -62,38 +71,6 @@ public class AuthControllerTest {
                 .content(toJson(registrationRequest))
                 .contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
-    }
-
-
-    @Test
-    public void userSignUpFailsIfUsernameIsTaken() throws Exception {
-        // Arrange
-        RegistrationRequest registrationRequest = new RegistrationRequest(
-                "Course1", "daniel@gmail.com", "Baraka1234");
-
-        when(userRepository.existsByUsername(registrationRequest.getUsername()))
-                .thenReturn(true);
-
-        mockMvc.perform(MockMvcRequestBuilders.post("/api/auth/register")
-                .content(toJson(registrationRequest))
-                .contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
-    }
-
-
-    @Test
-    public void userSignUpFailsIfEmailIsTaken() throws Exception {
-        // Arrange
-        RegistrationRequest registrationRequest = registrationRequest();
-
-        Mockito.when(userRepository.existsByEmail(registrationRequest.getEmail()))
-                .thenReturn(true);
-
-        //Act & Assert
-        mockMvc.perform(MockMvcRequestBuilders.post("/api/auth/register")
-                .content(toJson(registrationRequest))
-                .contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest());
     }
 
 
@@ -116,13 +93,10 @@ public class AuthControllerTest {
 
 
     @Test
-    public void userLoginSuccessfulWhenAccountExists() throws Exception {
+    public void userShouldLoginSuccessfullyWhenAccountExists() throws Exception {
+        UserPrincipal userPrincipal = createPrincipal();
+        Mockito.when(customUserDetailsService.loadUserByUsername(Mockito.anyString())).thenReturn(userPrincipal);
         LoginRequest loginRequest = loginRequest();
-        Mockito.when(authService.login(loginRequest)).thenReturn(AuthenticationResponse.builder()
-                .authenticationToken("qdfwdegrbhneb")
-                .refreshToken("wertvv")
-                .username(loginRequest.getUsername())
-                .build());
 
         //Act & Assert
         mockMvc.perform(MockMvcRequestBuilders.post("/api/auth/login")
@@ -135,9 +109,12 @@ public class AuthControllerTest {
 
 
     @Test
-    public void userLoginUnsuccessfulWhenWrongAccountDetails() throws Exception {
-        LoginRequest loginRequest = loginRequest();
-        Mockito.when(authService.login(loginRequest)).thenThrow(new BadCredentialsException("Bad credentials"));
+    public void userLoginShouldBeUnsuccessfulWhenWrongAccountDetailsAreUsed() throws Exception {
+
+        UserPrincipal userPrincipal = createPrincipal();
+        Mockito.when(customUserDetailsService.loadUserByUsername(Mockito.anyString())).thenReturn(userPrincipal);
+
+        LoginRequest loginRequest = new LoginRequest("Mutush", "Baraka12345");
 
         //Act & Assert
         mockMvc.perform(MockMvcRequestBuilders.post("/api/auth/login")
@@ -150,14 +127,32 @@ public class AuthControllerTest {
 
 
     @Test
-    public void userVerifyTokenIsSuccessful() throws Exception {
+    public void shouldReturnOkWhenActivationTokenIsValid() throws Exception {
+
+        User user = new User("Mutuba", "daniel@gmail.com", "Baraka1234");
+        AccountVerificationToken accountVerificationToken = mock(AccountVerificationToken.class);
+        accountVerificationToken.setUser(user);
+        Mockito.when(tokenRepository.findByToken(Mockito.anyString()))
+                .thenReturn(Optional.of(accountVerificationToken));
+
+        Mockito.when(accountVerificationToken.getUser()).thenReturn(user);
+//        Mockito.when(userRepository.save(user)).thenReturn(user);
+
+        //Act & Assert
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/auth/verify/{token}", accountVerificationToken))
+                .andExpect(status().isOk());
+//                .andExpect(jsonPath("status").value(200));
+    }
+
+    @Test
+    public void shouldRaiseActivationExceptionWhenActivationTokenIsInvalid() throws Exception {
+
         String token = authToken();
         //Act & Assert
-        mockMvc.perform(MockMvcRequestBuilders.get("/api/auth/verify/token")
-                .content(toJson(token))
-                .contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType("application/json"));
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/auth/verify/{token}", token))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("status").value(400))
+                .andExpect(jsonPath("error").value("Invalid Activation Token"));
     }
 
 
@@ -169,12 +164,6 @@ public class AuthControllerTest {
      *
      * @return The registrationRequest object.
      */
-
-    public RegistrationRequest registrationRequest() {
-        return new RegistrationRequest(
-                "Course1", "daniel@gmail.com", "Baraka1234");
-
-    }
 
 
     /**
@@ -200,6 +189,23 @@ public class AuthControllerTest {
 
         String token = "wqerwtytyjukilroli7ruktyrtrbrntj";
         return token;
+    }
+
+
+    public String activationToken() {
+        String token = "wqerwtytyjukilroli7ruktyrtrbrntj";
+        return token;
+    }
+
+
+    public UserPrincipal createPrincipal() {
+        Collection<GrantedAuthority> grantedAuthority = Arrays.asList(
+                new SimpleGrantedAuthority("USER")
+        );
+
+        return new UserPrincipal(123L,
+                "Mutush", "daniel@gmail.com",
+                passwordEncoder.encode("Baraka1234"), grantedAuthority);
     }
 
 }
