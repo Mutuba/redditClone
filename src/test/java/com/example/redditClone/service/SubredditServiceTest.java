@@ -9,7 +9,6 @@ import com.example.redditClone.repository.SubredditRepository;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -20,6 +19,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -101,6 +101,33 @@ public class SubredditServiceTest {
 
         // Assert
         Assert.assertEquals(expectedSubredditDTO.getDescription(), actualSubreddit.getDescription());
+
+
+    }
+
+    @Test
+    public void shouldReturnListOfSubredditDTOsWhenGetAllisCalled() {
+        List<Subreddit> actualSubredditList = Arrays.asList(Subreddit.builder()
+                .id(123L)
+                .name("Love")
+                .description("What the fuck")
+                .creationDate(Instant.now())
+                .posts(Arrays.asList(
+                        new Post(
+                                "Love",
+                                "http://127.0.0.1:8000/api/wallet/create",
+                                "What a thing",
+                                23,
+                                Instant.now())))
+                .build());
+
+        Mockito.when(subredditRepository.findAll()).thenReturn(actualSubredditList);
+
+        List<SubredditDTO> expectedSubredditDTOList = subredditService.getAll();
+
+        Assert.assertEquals(expectedSubredditDTOList.size(), 1);
+        Assert.assertEquals(expectedSubredditDTOList.get(0).getDescription(),
+                actualSubredditList.get(0).getDescription());
 
 
     }

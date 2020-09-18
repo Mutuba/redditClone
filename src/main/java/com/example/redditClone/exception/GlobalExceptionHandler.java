@@ -22,7 +22,7 @@ import javax.validation.ConstraintViolationException;
 @ControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(SubredditNotFoundException.class)
-    public ResponseEntity<TimeStampErrorMessage> resourceNotFoundException(SubredditNotFoundException ex,
+    public ResponseEntity<TimeStampErrorMessage>subredditNotFoundException(SubredditNotFoundException ex,
                                                                            WebRequest request) {
         TimeStampErrorMessage errors = new TimeStampErrorMessage();
         errors.setTimestamp(LocalDateTime.now());
@@ -57,10 +57,10 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     // @Validate For Validating Path Variables and Request Parameters
-    @ExceptionHandler(ConstraintViolationException.class)
-    public void constraintViolationException(HttpServletResponse response) throws IOException {
-        response.sendError(HttpStatus.BAD_REQUEST.value());
-    }
+//    @ExceptionHandler(ConstraintViolationException.class)
+//    public void constraintViolationException(HttpServletResponse response) throws IOException {
+//        response.sendError(HttpStatus.BAD_REQUEST.value());
+//    }
 
 
     // error handle for @Valid

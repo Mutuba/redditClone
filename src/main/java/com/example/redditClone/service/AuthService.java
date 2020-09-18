@@ -47,7 +47,7 @@ public class AuthService {
 
 
     @Transactional
-    public void register(RegistrationRequest registerRequest) throws MessagingException {
+    public void register(RegistrationRequest registerRequest) {
 
         User user = new User();
         user.setUsername(registerRequest.getUsername());

@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.mail.MessagingException;
+import javax.validation.Valid;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -27,7 +28,7 @@ public class AuthController {
 
 
     @PostMapping("/register")
-    public ResponseEntity register(@RequestBody RegistrationRequest registerRequest) throws MessagingException {
+    public ResponseEntity register( @Valid @RequestBody RegistrationRequest registerRequest) {
 
         if (userRepository.existsByUsername(registerRequest.getUsername())) {
             return new ResponseEntity(new APIResponse(false, "Username is already taken!"),
