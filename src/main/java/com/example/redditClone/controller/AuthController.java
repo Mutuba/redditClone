@@ -4,6 +4,7 @@ import com.example.redditClone.dto.APIResponse;
 import com.example.redditClone.dto.AuthenticationResponse;
 import com.example.redditClone.dto.LoginRequest;
 import com.example.redditClone.dto.RegistrationRequest;
+import com.example.redditClone.models.Role;
 import com.example.redditClone.repository.UserRepository;
 import com.example.redditClone.service.AuthService;
 import lombok.AllArgsConstructor;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.mail.MessagingException;
 import javax.validation.Valid;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/auth")

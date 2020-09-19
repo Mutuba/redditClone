@@ -61,7 +61,7 @@ public class AuthControllerLoginTest {
 
 
     @Test
-    public void userLoginShouldBeUnsuccessfulWhenWrongAccountDetailsAreUsed() throws Exception {
+    public void userLoginShouldBeUnsuccessfulWhenWrongPasswordIsUsed() throws Exception {
 
         UserPrincipal userPrincipal = createPrincipal();
         Mockito.when(customUserDetailsService.loadUserByUsername(
@@ -80,9 +80,24 @@ public class AuthControllerLoginTest {
 
 
 
+    @Test
+    public void userLoginShouldBeUnsuccessfulWhenWrongAccountDetailsAreUsed() throws Exception {
+        UserPrincipal userPrincipal = createPrincipal();
+        Mockito.when(customUserDetailsService.loadUserByUsername(
+                Mockito.anyString())).thenReturn(userPrincipal);
+
+        LoginRequest loginRequest = new LoginRequest("Mutush12", "Baraka1234");
+
+        //Act & Assert
+        mockMvc.perform(MockMvcRequestBuilders.post("/api/auth/login")
+                .content(toJson(loginRequest))
+                .contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound())
+                .andExpect(content().contentType("application/json"))
+                .andExpect(jsonPath("$.error").value("Bad credentials"));
+    }
+
     // Utility functions used in the test class
-
-
     /**
      * Return LoginRequest.
      *

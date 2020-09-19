@@ -6,9 +6,8 @@ import com.example.redditClone.dto.RefreshTokenRequest;
 import com.example.redditClone.dto.RegistrationRequest;
 import com.example.redditClone.exception.ActivationException;
 import com.example.redditClone.exception.UsernameNotFoundException;
-import com.example.redditClone.models.AccountVerificationToken;
-import com.example.redditClone.models.NotificationEmail;
-import com.example.redditClone.models.User;
+import com.example.redditClone.models.*;
+import com.example.redditClone.repository.RoleRepository;
 import com.example.redditClone.repository.TokenRepository;
 import com.example.redditClone.repository.UserRepository;
 import com.example.redditClone.security.JwtTokenProvider;
@@ -24,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.mail.MessagingException;
 import java.time.Instant;
+import java.util.Collections;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -34,7 +34,6 @@ import static com.example.redditClone.config.Constants.EMAIL_ACTIVATION;
 @Transactional
 public class AuthService {
 
-
     private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
     private final TokenRepository tokenRepository;
@@ -42,6 +41,8 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
     private final JwtTokenProvider jwtTokenProvider;
     private final RefreshTokenService refreshTokenService;
+
+    private final RoleRepository roleRepository;
 
     private final MailBuilder mailBuilder;
 
@@ -56,6 +57,14 @@ public class AuthService {
         user.setCreationDate(Instant.now());
         user.setAccountStatus(false);
         userRepository.save(user);
+
+        Optional<Role> userRole = roleRepository.findByName(RoleName.ROLE_USER);
+
+        // Evaluate the optional if null create a user role
+
+        Role role = userRole.orElseGet(() -> roleRepository.save(new Role(RoleName.ROLE_USER)));
+
+        user.setRoles(Collections.singleton(role));
 
         String token = generateVerificationToken(user);
         String message = mailBuilder.build("Welcome to React-Spring-Reddit Clone. " +

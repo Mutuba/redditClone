@@ -8,6 +8,8 @@ import javax.persistence.*;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import java.time.Instant;
+import java.util.HashSet;
+import java.util.Set;
 
 
 @Setter
@@ -35,6 +37,14 @@ public class User {
     @NotBlank(message = "Password is required")
     private String password;
 
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "user_roles",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id"))
+
+    // avoid storing duplicate roles, HashSet implementation ensures uniqueness
+    private Set<Role> roles = new HashSet<>();
 
     @Email
     @NotBlank(message = "Email is required")

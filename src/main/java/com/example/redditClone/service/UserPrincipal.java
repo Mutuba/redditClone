@@ -1,5 +1,6 @@
 package com.example.redditClone.service;
 
+import com.example.redditClone.models.Role;
 import com.example.redditClone.models.User;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.security.core.GrantedAuthority;
@@ -9,6 +10,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 
 public final class UserPrincipal implements UserDetails {
@@ -39,15 +41,15 @@ public final class UserPrincipal implements UserDetails {
                 user.getUsername(),
                 user.getEmail(),
                 user.getPassword(),
-                createAuthority("USER")
+                createAuthority(user.getRoles())
 
         );
     }
 
-    private static Collection<? extends GrantedAuthority> createAuthority(String role) {
-        // takes a role name and returns an instance of SimpleGrantedAuthority
-        //Returns an immutable list containing only the specified object. The returned list is serializable.
-        return Collections.singletonList(new SimpleGrantedAuthority(role));
+    private static Collection<? extends GrantedAuthority> createAuthority(Collection<Role> roles) {
+        // takes a role name and returns an instance of SimpleGrantedAuthority for each of the user roles
+        return roles.stream().map(role -> new SimpleGrantedAuthority(role.getName().name())
+        ).collect(Collectors.toList());
     }
 
     public Long getId() {
