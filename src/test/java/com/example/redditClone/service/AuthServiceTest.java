@@ -237,7 +237,7 @@ public class AuthServiceTest {
 
     public UserPrincipal createPrincipal() {
         Collection<GrantedAuthority> grantedAuthority = Arrays.asList(
-                new SimpleGrantedAuthority("USER")
+                new SimpleGrantedAuthority("ROLE_USER")
         );
 
         return new UserPrincipal(123L,

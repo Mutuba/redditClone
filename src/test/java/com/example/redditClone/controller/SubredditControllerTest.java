@@ -43,9 +43,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class SubredditControllerTest {
 
     @Autowired
-    private ObjectMapper objectMapper;
-
-    @Autowired
     private MockMvc mockMvc;
 
     @Autowired
@@ -67,9 +64,7 @@ public class SubredditControllerTest {
     @Test
     public void addSubreddit_ShouldReturn_Created_Subreddit() throws Exception {
         UserPrincipal userPrincipal = createPrincipal();
-
         String token = authToken();
-
         Mockito.when(jwtTokenProvider.validateToken(Mockito.anyString())).thenReturn(Boolean.TRUE);
         Mockito.when(jwtTokenProvider.getUserIdFromJWT(token)).thenReturn(userPrincipal.getId());
 
@@ -81,10 +76,7 @@ public class SubredditControllerTest {
                 .description("I love you")
                 .creationDate(Instant.now())
                 .build();
-
         Mockito.when(subredditRepository.save(Mockito.any(Subreddit.class))).thenReturn(actualSubreddit);
-
-
         Mockito.when(authService.getCurrentUser()).thenReturn(new User(
                 "Mutush",
                 "daniel@gmail.com",
@@ -112,12 +104,9 @@ public class SubredditControllerTest {
     @Test
     public void getAllSubreddits_ShouldReturn_List_of_Subreddits() throws Exception {
         UserPrincipal userPrincipal = createPrincipal();
-
         String token = authToken();
-
         Mockito.when(jwtTokenProvider.validateToken(Mockito.anyString())).thenReturn(Boolean.TRUE);
         Mockito.when(jwtTokenProvider.getUserIdFromJWT(token)).thenReturn(userPrincipal.getId());
-
         Mockito.when(customUserDetailsService.loadUserById(Mockito.anyLong())).thenReturn(userPrincipal);
 
         Mockito.when(authService.getCurrentUser()).thenReturn(new User(
@@ -146,7 +135,6 @@ public class SubredditControllerTest {
                 .get(uri).header("Authorization", "Bearer " + token))
                 .andDo(print())
                 .andExpect(content().contentType("application/json"))
-                .andExpect(jsonPath("$").value(actualSubredditList))
                 .andExpect(status().isOk());
     }
 
@@ -154,12 +142,9 @@ public class SubredditControllerTest {
     @Test
     public void getSubreddit_ShouldReturn_Found_Subreddit() throws Exception {
         UserPrincipal userPrincipal = createPrincipal();
-
         String token = authToken();
-
         Mockito.when(jwtTokenProvider.validateToken(Mockito.anyString())).thenReturn(Boolean.TRUE);
         Mockito.when(jwtTokenProvider.getUserIdFromJWT(token)).thenReturn(userPrincipal.getId());
-
         Mockito.when(customUserDetailsService.loadUserById(Mockito.anyLong())).thenReturn(userPrincipal);
 
         Mockito.when(authService.getCurrentUser()).thenReturn(new User(
@@ -198,14 +183,10 @@ public class SubredditControllerTest {
     @Test
     public void getSubreddit_ShouldReturn_404_Not_Found_For_Non_Existent_Subreddit() throws Exception {
         UserPrincipal userPrincipal = createPrincipal();
-
         String token = authToken();
-
         Mockito.when(jwtTokenProvider.validateToken(Mockito.anyString())).thenReturn(Boolean.TRUE);
         Mockito.when(jwtTokenProvider.getUserIdFromJWT(token)).thenReturn(userPrincipal.getId());
-
         Mockito.when(customUserDetailsService.loadUserById(Mockito.anyLong())).thenReturn(userPrincipal);
-
         Mockito.when(authService.getCurrentUser()).thenReturn(new User(
                 "Mutush",
                 "daniel@gmail.com",
@@ -239,7 +220,7 @@ public class SubredditControllerTest {
 
     public UserPrincipal createPrincipal() {
         Collection<GrantedAuthority> grantedAuthority = Arrays.asList(
-                new SimpleGrantedAuthority("USER")
+                new SimpleGrantedAuthority("ROLE_USER")
         );
         return new UserPrincipal(123L,
                 "Mutush", "daniel@gmail.com",

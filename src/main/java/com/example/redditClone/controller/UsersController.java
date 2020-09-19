@@ -15,7 +15,6 @@ public class UsersController {
     @Autowired
     private UserRepository userRepository;
 
-
     @GetMapping("/user/me")
     @PreAuthorize("hasRole('USER')")
     public UserSummary getCurrentUser(@CurrentUser UserPrincipal currentUser) {

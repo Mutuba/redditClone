@@ -1,6 +1,7 @@
 package com.example.redditClone.controller;
 
 import com.example.redditClone.dto.LoginRequest;
+import com.example.redditClone.exception.UsernameNotFoundException;
 import com.example.redditClone.service.CustomUserDetailsService;
 import com.example.redditClone.service.UserPrincipal;
 import org.junit.Test;
@@ -11,6 +12,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -48,7 +50,7 @@ public class AuthControllerLoginTest {
         UserPrincipal userPrincipal = createPrincipal();
         Mockito.when(customUserDetailsService.loadUserByUsername(
                 Mockito.anyString())).thenReturn(userPrincipal);
-        LoginRequest loginRequest = loginRequest();
+        LoginRequest loginRequest = new LoginRequest("Mutush", "Baraka1234");
 
         //Act & Assert
         mockMvc.perform(MockMvcRequestBuilders.post("/api/auth/login")
@@ -79,41 +81,36 @@ public class AuthControllerLoginTest {
     }
 
 
-
     @Test
     public void userLoginShouldBeUnsuccessfulWhenWrongAccountDetailsAreUsed() throws Exception {
-        UserPrincipal userPrincipal = createPrincipal();
         Mockito.when(customUserDetailsService.loadUserByUsername(
-                Mockito.anyString())).thenReturn(userPrincipal);
-
-        LoginRequest loginRequest = new LoginRequest("Mutush12", "Baraka1234");
-
+                Mockito.anyString())).thenThrow(new BadCredentialsException("Bad credentials"));
+        LoginRequest loginRequest = new LoginRequest("Mutuba", "Baraka1234");
         //Act & Assert
         mockMvc.perform(MockMvcRequestBuilders.post("/api/auth/login")
                 .content(toJson(loginRequest))
                 .contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isNotFound())
+                .andExpect(status().isBadRequest())
                 .andExpect(content().contentType("application/json"))
                 .andExpect(jsonPath("$.error").value("Bad credentials"));
     }
 
+
     // Utility functions used in the test class
+
     /**
      * Return LoginRequest.
      *
      * @return The loginRequest object.
      */
 
-    public LoginRequest loginRequest() {
-        return new LoginRequest("Mutush", "Baraka1234");
-
-    }
-
-
-
+//    public LoginRequest loginRequest() {
+//        return new LoginRequest("Mutush", "Baraka1234");
+//
+//    }
     public UserPrincipal createPrincipal() {
         Collection<GrantedAuthority> grantedAuthority = Arrays.asList(
-                new SimpleGrantedAuthority("USER")
+                new SimpleGrantedAuthority("ROLE_USER")
         );
 
         return new UserPrincipal(123L,

@@ -27,4 +27,12 @@ public class UserSummary {
     public void setUsername(String username) {
         this.username = username;
     }
+
+    public String getEmail() {
+        return this.email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
 }
