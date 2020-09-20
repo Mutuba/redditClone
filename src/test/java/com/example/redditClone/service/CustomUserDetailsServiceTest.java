@@ -16,7 +16,7 @@ import static org.junit.Assert.assertEquals;
 @SpringBootTest
 @RunWith(SpringRunner.class)
 @ActiveProfiles("test")
-public class CustomUserDetailsDerviceTest {
+public class CustomUserDetailsServiceTest {
 
     @Autowired
     UserRepository userRepository;

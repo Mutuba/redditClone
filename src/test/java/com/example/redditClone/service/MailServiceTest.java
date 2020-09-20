@@ -61,7 +61,7 @@ public class MailServiceTest {
 
 
     @Test()
-    public void testSendEmailSuccesful() throws InterruptedException, MessagingException {
+    public void testSendEmailSuccesful() {
 
         MimeMessagePreparator messagePreparator = mimeMessage -> {
             MimeMessageHelper messageHelper = new MimeMessageHelper(mimeMessage);
@@ -84,7 +84,6 @@ public class MailServiceTest {
 
     @Test(expected = ActivationException.class)
     public void testActivationException() {
-
         MimeMessagePreparator messagePreparator = mimeMessage -> {
             MimeMessageHelper messageHelper = new MimeMessageHelper(mimeMessage);
             messageHelper.setFrom("springreddit@email.com");

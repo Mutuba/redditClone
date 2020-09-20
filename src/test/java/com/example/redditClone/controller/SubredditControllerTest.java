@@ -32,7 +32,7 @@ import java.time.Instant;
 import java.util.*;
 
 import static groovy.json.JsonOutput.toJson;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+//import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @RunWith(SpringRunner.class)
@@ -133,7 +133,6 @@ public class SubredditControllerTest {
         String uri = "/api/subreddit";
         mockMvc.perform(MockMvcRequestBuilders
                 .get(uri).header("Authorization", "Bearer " + token))
-                .andDo(print())
                 .andExpect(content().contentType("application/json"))
                 .andExpect(status().isOk());
     }
@@ -172,13 +171,37 @@ public class SubredditControllerTest {
         mockMvc.perform(MockMvcRequestBuilders
                 .get("/api/subreddit/123").header("Authorization", "Bearer " + token)
                 .accept(MediaType.APPLICATION_JSON))
-
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/json"))
                 .andExpect(jsonPath("$.name").value("iPhone12"))
                 .andExpect(jsonPath("$.description").value("The best smartphone ever"));
     }
 
+
+    @Test
+    public void shouldRaiseUnAuthorisedIfTokenIsNotInHeaders() throws Exception {
+
+        Subreddit actualSubreddit = Subreddit.builder()
+                .id(123L)
+                .name("iPhone12")
+                .description("The best smartphone ever")
+                .creationDate(Instant.now())
+                .posts(Arrays.asList(
+                        new Post(
+                                "Love",
+                                "http://127.0.0.1:8000/api/wallet/create",
+                                "What a thing",
+                                23,
+                                Instant.now())))
+                .build();
+
+        Mockito.when(subredditRepository.findById(Mockito.anyLong())).thenReturn(Optional.of(actualSubreddit));
+
+        mockMvc.perform(MockMvcRequestBuilders
+                .get("/api/subreddit/123")
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isUnauthorized());
+    }
 
     @Test
     public void getSubreddit_ShouldReturn_404_Not_Found_For_Non_Existent_Subreddit() throws Exception {
@@ -200,7 +223,6 @@ public class SubredditControllerTest {
         mockMvc.perform(MockMvcRequestBuilders
                 .get("/api/subreddit/123").header("Authorization", "Bearer " + token)
                 .accept(MediaType.APPLICATION_JSON))
-                .andDo(print())
                 .andExpect(jsonPath("error").value("Subreddit not found with id -0"))
                 .andExpect(status().isNotFound());
     }
