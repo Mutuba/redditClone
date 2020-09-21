@@ -31,7 +31,6 @@ public class UserEntityTest {
     public ExpectedException thrown = ExpectedException.none();
 
     private User user;
-    private User user1;
 
 
     @Before
@@ -62,7 +61,7 @@ public class UserEntityTest {
     @Test(expected = ConstraintViolationException.class)
     public void whenBlankUserName_and_Email_thenOneConstraintViolation() {
         User user = new User();
-        User saved = this.entityManager.persistAndFlush(user);
+        this.entityManager.persistAndFlush(user);
     }
 
 

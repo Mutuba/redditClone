@@ -1,6 +1,5 @@
 package com.example.redditClone.dto;
 
-import com.example.redditClone.models.User;
 import junit.framework.TestCase;
 import org.junit.Before;
 
@@ -10,14 +9,15 @@ public class ApiResponseTest extends TestCase {
 
     @Before
     public void setUp() {
-        apiResponse = new APIResponse(
-                true,
-                "Test api resonse"
-        );
+        apiResponse = new APIResponse();
     }
 
 
     public void testSettterMethods() {
+        apiResponse.setMessage("Test message for API response");
+        apiResponse.setSuccess(true);
+
+        assertTrue(apiResponse.getSuccess());
 
     }
 }

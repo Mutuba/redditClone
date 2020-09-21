@@ -6,6 +6,9 @@ public class UserSummary {
     private String email;
 
 
+    public UserSummary() {
+    }
+
     public UserSummary(Long id, String username, String email) {
         this.id = id;
         this.username = username;

@@ -7,6 +7,8 @@ import javax.validation.constraints.NotBlank;
 @Setter
 @Getter
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class RefreshTokenRequest {
     @NotBlank
     private String refreshToken;

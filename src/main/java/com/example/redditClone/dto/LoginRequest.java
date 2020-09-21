@@ -1,9 +1,10 @@
 package com.example.redditClone.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.*;
 
-@Data
+@Setter
+@Getter
+@NoArgsConstructor
 @AllArgsConstructor
 public class LoginRequest {
     private String username;
