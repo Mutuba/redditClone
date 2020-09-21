@@ -1,5 +1,9 @@
 package com.example.redditClone.dto;
 
+
+import lombok.NoArgsConstructor;
+
+@NoArgsConstructor
 public class APIResponse {
     private Boolean success;
     private String message;

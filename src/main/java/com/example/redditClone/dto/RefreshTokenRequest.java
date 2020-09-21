@@ -1,13 +1,11 @@
 package com.example.redditClone.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.validation.constraints.NotBlank;
 
-@Data
+@Setter
+@Getter
 @Builder
 public class RefreshTokenRequest {
     @NotBlank
