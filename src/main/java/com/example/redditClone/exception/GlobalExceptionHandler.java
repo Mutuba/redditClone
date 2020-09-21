@@ -31,18 +31,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
 
-    @ExceptionHandler(UsernameNotFoundException.class)
-    public ResponseEntity<TimeStampErrorMessage> usernameNotFoundException(UsernameNotFoundException ex,
-                                                                           WebRequest request) {
-        TimeStampErrorMessage errors = new TimeStampErrorMessage();
-        errors.setTimestamp(LocalDateTime.now());
-        errors.setError(ex.getMessage());
-        errors.setStatus(HttpStatus.NOT_FOUND.value());
-        errors.setDetails(request.getDescription(false));
-        return new ResponseEntity<>(errors, HttpStatus.NOT_FOUND);
-    }
-
-
     @ExceptionHandler(ActivationException.class)
     public ResponseEntity<TimeStampErrorMessage> activationException(ActivationException ex,
                                                                      WebRequest request) {
@@ -70,8 +58,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("timestamp", LocalDateTime.now());
         body.put("status", status.value());
-//        body.put("exception", ex.getClass().getName());
-
         //Get all fields errors
         List<String> errors = ex.getBindingResult()
                 .getFieldErrors()
@@ -93,15 +79,5 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         errors.setStatus(HttpStatus.BAD_REQUEST.value());
         errors.setDetails(request.getDescription(false));
         return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
-    }
-
-    @ExceptionHandler(RequestRejectedException.class)
-    public ResponseEntity<TimeStampErrorMessage> serverExcpetionHandler(Exception ex, WebRequest request) {
-        TimeStampErrorMessage errors = new TimeStampErrorMessage();
-        errors.setTimestamp(LocalDateTime.now());
-        errors.setError(ex.getMessage());
-        errors.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
-        errors.setDetails(request.getDescription(false));
-        return new ResponseEntity<>(errors, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }
