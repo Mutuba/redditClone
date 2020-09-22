@@ -169,8 +169,7 @@ public class SubredditControllerTest {
         Mockito.when(subredditRepository.findById(Mockito.anyLong())).thenReturn(Optional.of(actualSubreddit));
 
         mockMvc.perform(MockMvcRequestBuilders
-                .get("/api/subreddit/123").header("Authorization", "Bearer " + token)
-                .accept(MediaType.APPLICATION_JSON))
+                .get("/api/subreddit/123").header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/json"))
                 .andExpect(jsonPath("$.name").value("iPhone12"))

@@ -2,12 +2,13 @@ package com.example.redditClone.controller;
 
 
 import com.example.redditClone.dto.PostRequest;
-import com.example.redditClone.dto.SubredditDTO;
+import com.example.redditClone.exception.PostNotFoundException;
 import com.example.redditClone.models.Post;
 import com.example.redditClone.models.Subreddit;
 import com.example.redditClone.models.User;
 import com.example.redditClone.repository.PostRepository;
 import com.example.redditClone.repository.SubredditRepository;
+import com.example.redditClone.repository.UserRepository;
 import com.example.redditClone.security.JwtTokenProvider;
 import com.example.redditClone.service.AuthService;
 import com.example.redditClone.service.CustomUserDetailsService;
@@ -56,6 +57,9 @@ public class PostControllerTest {
     PostRepository postRepository;
 
     @MockBean
+    UserRepository userRepository;
+
+    @MockBean
     JwtTokenProvider jwtTokenProvider;
 
     @MockBean
@@ -66,7 +70,7 @@ public class PostControllerTest {
 
 
     @Test
-    public void add_Post_ShouldReturn_Created_Subreddit() throws Exception {
+    public void shouldReturnCreatedSuccessWhenAddPostMethodIsCalled() throws Exception {
         UserPrincipal userPrincipal = createPrincipal();
         String token = authToken();
         Mockito.when(jwtTokenProvider.validateToken(Mockito.anyString())).thenReturn(Boolean.TRUE);
@@ -97,7 +101,7 @@ public class PostControllerTest {
                 .thenReturn(Optional.of(actualSubreddit)
                 );
 
-        Post actualPost =Post.builder()
+        Post actualPost = Post.builder()
                 .postId(123L)
                 .postTitle("Love")
                 .description("I love you")
@@ -106,8 +110,8 @@ public class PostControllerTest {
                 .creationDate(Instant.now())
                 .user(
                         new User("Mutush",
-                        "daniel@gmail.com",
-                        passwordEncoder.encode("Baraka1234")
+                                "daniel@gmail.com",
+                                passwordEncoder.encode("Baraka1234")
                         )
                 )
                 .subreddit(actualSubreddit)
@@ -131,8 +135,250 @@ public class PostControllerTest {
                 .andExpect(status().isCreated());
     }
 
+    @Test
+    public void shouldReturnAListOfPostsWhenGetAllPostsIsCalled() throws Exception {
+
+        UserPrincipal userPrincipal = createPrincipal();
+        String token = authToken();
+        Mockito.when(jwtTokenProvider.validateToken(Mockito.anyString())).thenReturn(Boolean.TRUE);
+        Mockito.when(jwtTokenProvider.getUserIdFromJWT(token)).thenReturn(userPrincipal.getId());
+
+        Mockito.when(customUserDetailsService.loadUserById(Mockito.anyLong())).thenReturn(userPrincipal);
+
+        Mockito.when(authService.getCurrentUser()).thenReturn(new User(
+                "Mutush",
+                "daniel@gmail.com",
+                passwordEncoder.encode("Baraka1234")
+        ));
 
 
+        List<Post> postList = new ArrayList<>(Arrays.asList());
+
+        Subreddit actualSubreddit = Subreddit
+                .builder()
+                .id(123L)
+                .name("Love")
+                .description("I love you")
+                .creationDate(Instant.now())
+                .posts(postList)
+                .build();
+
+        List<Post> actualPostList = Arrays.asList(Post.builder()
+                .postId(123L)
+                .postTitle("Love")
+                .description("I love you")
+                .url("http://127.0.0.1:8000/api/wallet/create")
+                .voteCount(12)
+                .creationDate(Instant.now())
+                .user(
+                        new User("Mutush",
+                                "daniel@gmail.com",
+                                passwordEncoder.encode("Baraka1234")
+                        )
+                )
+                .subreddit(actualSubreddit)
+                .build());
+
+
+        // Act & Assert
+        Mockito.when(postRepository.findAll()).thenReturn(actualPostList);
+        String uri = "/api/posts";
+        mockMvc.perform(MockMvcRequestBuilders.get(uri)
+                .header("Authorization", "Bearer " + token)
+                .contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+
+
+    }
+
+
+    @Test
+    public void shouldReturnAPostWithGivenIdWhenGetPostByIDIsCalled() throws Exception {
+
+        UserPrincipal userPrincipal = createPrincipal();
+        String token = authToken();
+        Mockito.when(jwtTokenProvider.validateToken(Mockito.anyString())).thenReturn(Boolean.TRUE);
+        Mockito.when(jwtTokenProvider.getUserIdFromJWT(token)).thenReturn(userPrincipal.getId());
+
+        Mockito.when(customUserDetailsService.loadUserById(Mockito.anyLong())).thenReturn(userPrincipal);
+
+        Mockito.when(authService.getCurrentUser()).thenReturn(new User(
+                "Mutush",
+                "daniel@gmail.com",
+                passwordEncoder.encode("Baraka1234")
+        ));
+
+        Post actualPost = Post.builder()
+                .postId(123L)
+                .postTitle("Love")
+                .description("I love you")
+                .url("http://127.0.0.1:8000/api/wallet/create")
+                .voteCount(12)
+                .creationDate(Instant.now())
+                .user(
+                        new User("Mutush",
+                                "daniel@gmail.com",
+                                passwordEncoder.encode("Baraka1234")
+                        )
+                )
+                .subreddit(Subreddit
+                        .builder()
+                        .id(123L)
+                        .name("Love")
+                        .description("I love you")
+                        .creationDate(Instant.now())
+                        .build())
+                .build();
+
+
+        // Act & Assert
+        Mockito.when(postRepository.findById(Mockito.anyLong())).thenReturn(Optional.of(actualPost));
+
+        String uri = "/api/posts/123/";
+        mockMvc.perform(MockMvcRequestBuilders.get(uri)
+                .header("Authorization", "Bearer " + token))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType("application/json"))
+                .andExpect(content().contentType("application/json"))
+                .andExpect(jsonPath("$.postTitle").value("Love"));
+
+
+    }
+
+
+    @Test
+    public void shouldReturn404WhenGetPostByIDIsCalledWithNonExistingID() throws Exception {
+
+        UserPrincipal userPrincipal = createPrincipal();
+        String token = authToken();
+        Mockito.when(jwtTokenProvider.validateToken(Mockito.anyString())).thenReturn(Boolean.TRUE);
+        Mockito.when(jwtTokenProvider.getUserIdFromJWT(token)).thenReturn(userPrincipal.getId());
+
+        Mockito.when(customUserDetailsService.loadUserById(Mockito.anyLong())).thenReturn(userPrincipal);
+
+        Mockito.when(authService.getCurrentUser()).thenReturn(new User(
+                "Mutush",
+                "daniel@gmail.com",
+                passwordEncoder.encode("Baraka1234")
+        ));
+
+        // Act & Assert
+        Mockito.when(postRepository.findById(Mockito.anyLong()))
+                .thenThrow(new PostNotFoundException("Post not found with id: " + Mockito.anyInt()));
+
+        String uri = "/api/posts/123/";
+        mockMvc.perform(MockMvcRequestBuilders.get(uri)
+                .header("Authorization", "Bearer " + token))
+                .andExpect(status().isNotFound());
+
+    }
+
+    @Test
+    public void shouldReturnPostsWithinGivenSubredditIDWhenGetPostsBySubredditIsCalled() throws Exception {
+
+        UserPrincipal userPrincipal = createPrincipal();
+        String token = authToken();
+        Mockito.when(jwtTokenProvider.validateToken(Mockito.anyString())).thenReturn(Boolean.TRUE);
+        Mockito.when(jwtTokenProvider.getUserIdFromJWT(token)).thenReturn(userPrincipal.getId());
+
+        Mockito.when(customUserDetailsService.loadUserById(Mockito.anyLong())).thenReturn(userPrincipal);
+
+        Mockito.when(authService.getCurrentUser()).thenReturn(new User(
+                "Mutush",
+                "daniel@gmail.com",
+                passwordEncoder.encode("Baraka1234")
+        ));
+
+
+        List<Post> postList = new ArrayList<>(Arrays.asList(Post.builder()
+                .postId(123L)
+                .postTitle("Love")
+                .description("I love you")
+                .url("http://127.0.0.1:8000/api/wallet/create")
+                .voteCount(12)
+                .creationDate(Instant.now())
+                .user(
+                        new User("Mutush",
+                                "daniel@gmail.com",
+                                passwordEncoder.encode("Baraka1234")
+                        )
+                )
+                .subreddit(Subreddit
+                        .builder()
+                        .id(123L)
+                        .name("Love")
+                        .description("I love you")
+                        .creationDate(Instant.now())
+                        .build())
+                .build()));
+
+        Subreddit actualSubreddit = Subreddit
+                .builder()
+                .id(123L)
+                .name("Love")
+                .description("I love you")
+                .creationDate(Instant.now())
+                .posts(postList)
+                .build();
+
+        // Act & Assert
+        Mockito.when(subredditRepository.findById(Mockito.anyLong())).thenReturn(Optional.of(actualSubreddit));
+        String uri = "/api/posts/subreddit/123/";
+        mockMvc.perform(MockMvcRequestBuilders.get(uri)
+                .header("Authorization", "Bearer " + token)
+                .contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+    }
+
+
+    @Test
+    public void shouldReturnPostsWithinGivenSubredditIDWhenGetPostsByUsernameIsCalled() throws Exception {
+
+        UserPrincipal userPrincipal = createPrincipal();
+        String token = authToken();
+        Mockito.when(jwtTokenProvider.validateToken(Mockito.anyString())).thenReturn(Boolean.TRUE);
+        Mockito.when(jwtTokenProvider.getUserIdFromJWT(token)).thenReturn(userPrincipal.getId());
+
+        Mockito.when(customUserDetailsService.loadUserById(Mockito.anyLong())).thenReturn(userPrincipal);
+
+        Mockito.when(authService.getCurrentUser()).thenReturn(new User(
+                "Mutush",
+                "daniel@gmail.com",
+                passwordEncoder.encode("Baraka1234")
+        ));
+
+        User user = new User("Mutush",
+                "daniel@gmail.com",
+                passwordEncoder.encode("Baraka1234")
+        );
+
+        Post.builder()
+                .postId(123L)
+                .postTitle("Love")
+                .description("I love you")
+                .url("http://127.0.0.1:8000/api/wallet/create")
+                .voteCount(12)
+                .creationDate(Instant.now())
+                .user(user)
+                .subreddit(Subreddit
+                        .builder()
+                        .id(123L)
+                        .name("Love")
+                        .description("I love you")
+                        .creationDate(Instant.now())
+                        .build())
+                .build();
+
+
+        // Act & Assert
+        Mockito.when(userRepository.findByUsername(Mockito.anyString())).thenReturn(Optional.of(user));
+
+        String uri = "/api/posts/user/username/";
+        mockMvc.perform(MockMvcRequestBuilders.get(uri)
+                .header("Authorization", "Bearer " + token)
+                .contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+    }
 
     /**
      * Return an Auth Token.
