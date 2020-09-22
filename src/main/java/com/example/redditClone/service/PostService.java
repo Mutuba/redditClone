@@ -40,6 +40,7 @@ public class PostService {
         return false;
     }
 
+
     private PostResponse mapToResponse(Post post) {
         return PostResponse.builder()
                 .postId(post.getPostId())
