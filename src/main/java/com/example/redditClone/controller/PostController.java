@@ -29,7 +29,7 @@ public class PostController {
 
     @GetMapping("{id}")
     public ResponseEntity<PostResponse> getPostByID(@PathVariable Long id) {
-        return new ResponseEntity<>(postService.findByID(id), HttpStatus.OK);
+        return new ResponseEntity<>(postService.getPost(id), HttpStatus.OK);
     }
 
     @GetMapping("/subreddit/{id}")

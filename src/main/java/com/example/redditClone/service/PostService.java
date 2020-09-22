@@ -32,8 +32,10 @@ public class PostService {
 
     private boolean checkVoteType(Post post, VoteType voteType) {
         if(authService.isLoggedIn()) {
-            Optional<Vote> voteForPostForUser = voteRepository.findTopByPostAndUserOrderByVoteIdDesc(post, authService.getCurrentUser());
-            return voteForPostForUser.filter(vote -> vote.getVoteType().equals(voteType)).isPresent();
+            Optional<Vote> voteForPostByUser = voteRepository
+                    .findTopByPostAndUserOrderByVoteIdDesc(post, authService.getCurrentUser());
+
+            return voteForPostByUser.filter(vote -> vote.getVoteType().equals(voteType)).isPresent();
         }
         return false;
     }
@@ -54,6 +56,7 @@ public class PostService {
                 .build();
     }
 
+
     private Post mapToPost(PostRequest postRequest) {
         Subreddit subreddit = subredditRepository.findByName(postRequest.getSubredditName())
                 .orElseThrow(() -> new SubredditNotFoundException(postRequest.getSubredditName()));
@@ -70,10 +73,12 @@ public class PostService {
         return newPost;
     }
 
+
     public PostResponse save(PostRequest postRequest) {
         return mapToResponse(postRepository.save(mapToPost(postRequest)));
     }
 
+    @Transactional(readOnly = true)
     public List<PostResponse> getAllPost() {
         return StreamSupport
                 .stream(postRepository.findAll().spliterator(), false)
@@ -81,12 +86,14 @@ public class PostService {
                 .collect(Collectors.toList());
     }
 
-    public PostResponse findByID (Long id) {
+    @Transactional(readOnly = true)
+    public PostResponse getPost (Long id) {
         Post post = postRepository.findById(id)
                 .orElseThrow(() -> new PostNotFoundException("Post not found with id: " + id));
         return mapToResponse(post);
     }
 
+    @Transactional(readOnly = true)
     public List<PostResponse> getPostsBySubreddit(Long id) {
         Subreddit subreddit = subredditRepository.findById(id)
                 .orElseThrow(() -> new SubredditNotFoundException("Subreddit not found with id: " + id));
@@ -95,6 +102,7 @@ public class PostService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
     public List<PostResponse> getPostsByUsername(String username) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UserNotFoundException("User not found with username: " + username));

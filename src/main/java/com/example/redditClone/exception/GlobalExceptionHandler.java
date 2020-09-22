@@ -31,7 +31,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler(PostNotFoundException.class)
-    public ResponseEntity<TimeStampErrorMessage>postNotFoundException(PostNotFoundException ex,
+    public ResponseEntity<TimeStampErrorMessage> postNotFoundException(PostNotFoundException ex,
                                                                            WebRequest request) {
         TimeStampErrorMessage errors = new TimeStampErrorMessage();
         errors.setTimestamp(LocalDateTime.now());
@@ -40,6 +40,19 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         errors.setDetails(request.getDescription(false));
         return new ResponseEntity<>(errors, HttpStatus.NOT_FOUND);
     }
+
+
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<TimeStampErrorMessage> userNotFoundException(UserNotFoundException ex,
+                                                                       WebRequest request) {
+        TimeStampErrorMessage errors = new TimeStampErrorMessage();
+        errors.setTimestamp(LocalDateTime.now());
+        errors.setError(ex.getMessage());
+        errors.setStatus(HttpStatus.NOT_FOUND.value());
+        errors.setDetails(request.getDescription(false));
+        return new ResponseEntity<>(errors, HttpStatus.NOT_FOUND);
+    }
+
 
     @ExceptionHandler(ActivationException.class)
     public ResponseEntity<TimeStampErrorMessage> activationException(ActivationException ex,

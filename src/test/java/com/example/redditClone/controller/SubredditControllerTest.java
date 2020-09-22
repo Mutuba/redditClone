@@ -216,7 +216,7 @@ public class SubredditControllerTest {
 
 
         Mockito.when(subredditRepository.findById(Mockito.anyLong()))
-                .thenThrow(new SubredditNotFoundException("Subreddit not found with id -" + Mockito.anyLong()));
+                .thenThrow(new SubredditNotFoundException("Subreddit not found with id -0"));
 
         mockMvc.perform(MockMvcRequestBuilders
                 .get("/api/subreddit/123").header("Authorization", "Bearer " + token)
