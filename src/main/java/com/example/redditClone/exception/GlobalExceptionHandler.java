@@ -19,6 +19,8 @@ import java.util.stream.Collectors;
 
 @ControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
+
+
     @ExceptionHandler(SubredditNotFoundException.class)
     public ResponseEntity<TimeStampErrorMessage>subredditNotFoundException(SubredditNotFoundException ex,
                                                                            WebRequest request) {

@@ -2,9 +2,6 @@ package com.example.redditClone.controller;
 
 
 import com.example.redditClone.dto.PostRequest;
-import com.example.redditClone.exception.PostNotFoundException;
-import com.example.redditClone.exception.SubredditNotFoundException;
-import com.example.redditClone.exception.UserNotFoundException;
 import com.example.redditClone.models.Post;
 import com.example.redditClone.models.Subreddit;
 import com.example.redditClone.models.User;
@@ -37,7 +34,6 @@ import java.util.*;
 
 import static groovy.json.JsonOutput.toJson;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 @SpringBootTest
 @RunWith(SpringRunner.class)
@@ -248,37 +244,6 @@ public class PostControllerTest {
 
 
     @Test
-    public void shouldRaisePostNotFoundWhenGetPostByIDIsCalledWithNonExistingID()
-            throws Exception {
-
-        UserPrincipal userPrincipal = createPrincipal();
-        String token = authToken();
-        Mockito.when(jwtTokenProvider.validateToken(Mockito.anyString())).thenReturn(Boolean.TRUE);
-        Mockito.when(jwtTokenProvider.getUserIdFromJWT(token)).thenReturn(userPrincipal.getId());
-
-        Mockito.when(customUserDetailsService.loadUserById(Mockito.anyLong())).thenReturn(userPrincipal);
-
-        Mockito.when(authService.getCurrentUser()).thenReturn(new User(
-                "Mutush",
-                "daniel@gmail.com",
-                passwordEncoder.encode("Baraka1234")
-        ));
-
-        // Act & Assert
-        Mockito.when(postRepository.findById(Mockito.anyLong()))
-                .thenThrow(new PostNotFoundException("Post not found with id: "));
-
-        String uri = "/api/posts/123/";
-        mockMvc.perform(MockMvcRequestBuilders.get(uri)
-                .header("Authorization", "Bearer " + token))
-                .andExpect(status().isNotFound())
-                .andExpect(content().contentType("application/json"))
-                .andExpect(jsonPath("error").value("Post not found with id: "));
-
-    }
-
-
-    @Test
     public void shouldReturnPostsWithinGivenSubredditIDWhenGetPostsBySubredditIsCalled()
             throws Exception {
 
@@ -338,36 +303,6 @@ public class PostControllerTest {
 
 
     @Test
-    public void shouldRaiseSubredditNotFoundWhenGetPostByIDIsCalledWithNonExistingSubredditID()
-            throws Exception {
-
-        UserPrincipal userPrincipal = createPrincipal();
-        String token = authToken();
-        Mockito.when(jwtTokenProvider.validateToken(Mockito.anyString())).thenReturn(Boolean.TRUE);
-        Mockito.when(jwtTokenProvider.getUserIdFromJWT(token)).thenReturn(userPrincipal.getId());
-
-        Mockito.when(customUserDetailsService.loadUserById(Mockito.anyLong())).thenReturn(userPrincipal);
-
-        Mockito.when(authService.getCurrentUser()).thenReturn(new User(
-                "Mutush",
-                "daniel@gmail.com",
-                passwordEncoder.encode("Baraka1234")
-        ));
-
-        // Act & Assert
-        Mockito.when(subredditRepository.findById(Mockito.anyLong()))
-                .thenThrow(new SubredditNotFoundException("Subreddit not found with id -0"));
-
-        String uri = "/api/posts/subreddit/123/";
-        mockMvc.perform(MockMvcRequestBuilders.get(uri)
-                .header("Authorization", "Bearer " + token))
-                .andExpect(status().isNotFound())
-                .andExpect(content().contentType("application/json"))
-                .andExpect(jsonPath("error").value("Subreddit not found with id -0"));
-
-    }
-
-    @Test
     public void shouldReturnPostsWithinGivenSubredditIDWhenGetPostsByUsernameIsCalled()
             throws Exception {
 
@@ -419,36 +354,6 @@ public class PostControllerTest {
     }
 
 
-
-    @Test
-    public void shouldRaiseUserNotFoundWhenGetPostByUsernameIsCalledWithNonExistingUsername()
-            throws Exception {
-
-        UserPrincipal userPrincipal = createPrincipal();
-        String token = authToken();
-        Mockito.when(jwtTokenProvider.validateToken(Mockito.anyString())).thenReturn(Boolean.TRUE);
-        Mockito.when(jwtTokenProvider.getUserIdFromJWT(token)).thenReturn(userPrincipal.getId());
-
-        Mockito.when(customUserDetailsService.loadUserById(Mockito.anyLong())).thenReturn(userPrincipal);
-
-        Mockito.when(authService.getCurrentUser()).thenReturn(new User(
-                "Mutush",
-                "daniel@gmail.com",
-                passwordEncoder.encode("Baraka1234")
-        ));
-
-        // Act & Assert
-        Mockito.when(userRepository.findByUsername(Mockito.anyString()))
-                .thenThrow(new UserNotFoundException("User not found with username: "));
-
-        String uri = "/api/posts/user/username/";
-        mockMvc.perform(MockMvcRequestBuilders.get(uri)
-                .header("Authorization", "Bearer " + token))
-                .andExpect(status().isNotFound())
-                .andExpect(content().contentType("application/json"))
-                .andExpect(jsonPath("error").value("User not found with username: "));
-
-    }
 
 
     /**
