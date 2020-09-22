@@ -87,7 +87,7 @@ public class SubredditControllerTest {
         // Act & Assert
 
         SubredditDTO subredditDTO = SubredditDTO.builder().name("Love").description(
-                "What the fuck"
+                "I love you"
         ).build();
 
         mockMvc.perform(MockMvcRequestBuilders.post("/api/subreddit")
@@ -97,7 +97,7 @@ public class SubredditControllerTest {
                 .andExpect(status().isCreated())
                 .andExpect(content().contentType("application/json"))
                 .andExpect(jsonPath("$.name").value("Love"))
-                .andExpect(jsonPath("$.description").value("What the fuck"));
+                .andExpect(jsonPath("$.description").value("I love you"));
     }
 
 
@@ -180,7 +180,6 @@ public class SubredditControllerTest {
 
     @Test
     public void shouldRaiseUnAuthorisedIfTokenIsNotInHeaders() throws Exception {
-
         Subreddit actualSubreddit = Subreddit.builder()
                 .id(123L)
                 .name("iPhone12")
