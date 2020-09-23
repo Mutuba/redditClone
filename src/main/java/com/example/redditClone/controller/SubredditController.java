@@ -18,7 +18,7 @@ public class SubredditController {
     SubredditService subredditService;
 
     @GetMapping
-    public List<SubredditDTO> getAllSubreddits () {
+    public List<SubredditDTO> getAllSubreddits() {
         return subredditService.getAll();
     }
 
@@ -29,7 +29,7 @@ public class SubredditController {
 
     @PostMapping
     public ResponseEntity addSubreddit(@RequestBody @Valid SubredditDTO subredditDTO) {
-        SubredditDTO  subredditDTO1= subredditService.save(subredditDTO);
+        SubredditDTO subredditDTO1 = subredditService.save(subredditDTO);
         return new ResponseEntity(subredditDTO1, HttpStatus.CREATED);
     }
 

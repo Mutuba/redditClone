@@ -3,11 +3,14 @@ package com.example.redditClone.repository;
 import com.example.redditClone.models.Post;
 import com.example.redditClone.models.Subreddit;
 import com.example.redditClone.models.User;
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
-public interface PostRepository extends CrudRepository<Post, Long> {
+
+@Repository
+public interface PostRepository extends JpaRepository<Post, Long> {
     List<Post> findAllBySubreddit(Subreddit subreddit);
 
     List<Post> findByUser(User user);

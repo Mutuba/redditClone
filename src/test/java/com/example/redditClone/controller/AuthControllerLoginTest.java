@@ -104,10 +104,6 @@ public class AuthControllerLoginTest {
      * @return The loginRequest object.
      */
 
-//    public LoginRequest loginRequest() {
-//        return new LoginRequest("Mutush", "Baraka1234");
-//
-//    }
     public UserPrincipal createPrincipal() {
         Collection<GrantedAuthority> grantedAuthority = Arrays.asList(
                 new SimpleGrantedAuthority("ROLE_USER")

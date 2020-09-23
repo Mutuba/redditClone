@@ -325,31 +325,31 @@ public class PostControllerTest {
                 passwordEncoder.encode("Baraka1234")
         );
 
-        Post.builder()
-                .postId(123L)
-                .postTitle("Love")
-                .description("I love you")
-                .url("http://127.0.0.1:8000/api/wallet/create")
-                .voteCount(12)
-                .creationDate(Instant.now())
-                .user(user)
-                .subreddit(Subreddit
-                        .builder()
-                        .id(123L)
-                        .name("Love")
-                        .description("I love you")
-                        .creationDate(Instant.now())
-                        .build())
-                .build();
+       List<Post> postList = new ArrayList<>(Arrays.asList(Post.builder()
+               .postId(123L)
+               .postTitle("Love")
+               .description("I love you")
+               .url("http://127.0.0.1:8000/api/wallet/create")
+               .voteCount(12)
+               .creationDate(Instant.now())
+               .user(user)
+               .subreddit(Subreddit
+                       .builder()
+                       .id(123L)
+                       .name("Love")
+                       .description("I love you")
+                       .creationDate(Instant.now())
+                       .build())
+               .build()));
 
 
-        // Act & Assert
         Mockito.when(userRepository.findByUsername(Mockito.anyString())).thenReturn(Optional.of(user));
-
+        Mockito.when(postRepository.findByUser(Mockito.any(User.class))).thenReturn(postList);
+        // Act & Assert
         String uri = "/api/posts/user/username/";
         mockMvc.perform(MockMvcRequestBuilders.get(uri)
                 .header("Authorization", "Bearer " + token)
-                .contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
     }
 

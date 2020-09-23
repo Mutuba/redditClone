@@ -22,4 +22,12 @@ public class PostRequestTest extends TestCase {
 
         Assert.assertTrue(postRequest instanceof PostRequest);
     }
+
+
+    @Test
+    public void testPostRequestBuilderPatternToStringMethod(){
+        String postRequestString = PostRequest.builder().postId(123l).postTitle("Love").toString();
+
+        Assert.assertTrue(postRequestString instanceof String);
+    }
 }

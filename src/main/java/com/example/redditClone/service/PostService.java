@@ -75,6 +75,7 @@ public class PostService {
     }
 
 
+    @Transactional
     public PostResponse save(PostRequest postRequest) {
         return mapToResponse(postRepository.save(mapToPost(postRequest)));
     }

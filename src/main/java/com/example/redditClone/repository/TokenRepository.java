@@ -1,10 +1,12 @@
 package com.example.redditClone.repository;
 
 import com.example.redditClone.models.AccountVerificationToken;
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
-public interface TokenRepository extends CrudRepository<AccountVerificationToken, Long> {
+@Repository
+public interface TokenRepository extends JpaRepository<AccountVerificationToken, Long> {
     Optional<AccountVerificationToken> findByToken(String token);
 }

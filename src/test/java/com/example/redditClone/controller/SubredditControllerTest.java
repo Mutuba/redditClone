@@ -10,7 +10,6 @@ import com.example.redditClone.security.JwtTokenProvider;
 import com.example.redditClone.service.AuthService;
 import com.example.redditClone.service.CustomUserDetailsService;
 import com.example.redditClone.service.UserPrincipal;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -32,7 +31,6 @@ import java.time.Instant;
 import java.util.*;
 
 import static groovy.json.JsonOutput.toJson;
-//import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @RunWith(SpringRunner.class)

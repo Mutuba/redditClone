@@ -18,7 +18,7 @@ public class MailService {
     MailBuilder mailBuilder;
 
     @Async
-    void sendEmail(NotificationEmail notificationEmail) {
+    public void sendEmail(NotificationEmail notificationEmail) {
         MimeMessagePreparator messagePreparator = mimeMessage -> {
             MimeMessageHelper messageHelper = new MimeMessageHelper(mimeMessage);
             messageHelper.setFrom("activation@redditclone.com");

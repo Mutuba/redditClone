@@ -1,11 +1,13 @@
 package com.example.redditClone.repository;
 
 import com.example.redditClone.models.User;
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
-public interface UserRepository extends CrudRepository<User, Long> {
+@Repository
+public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByUsername(String username);
 
     Boolean existsByUsername(String username);

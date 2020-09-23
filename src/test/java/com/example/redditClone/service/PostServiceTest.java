@@ -1,15 +1,15 @@
 package com.example.redditClone.service;
 
-import com.example.redditClone.dto.PostRequest;
 import com.example.redditClone.dto.PostResponse;
-import com.example.redditClone.exception.SubredditNotFoundException;
 import com.example.redditClone.models.*;
 import com.example.redditClone.repository.PostRepository;
 import com.example.redditClone.repository.VoteRepository;
 import org.junit.Assert;
 import org.junit.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -19,19 +19,14 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.test.context.web.WebAppConfiguration;
 
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
 
 @SpringBootTest
-@AutoConfigureMockMvc
-@WebAppConfiguration
 @ActiveProfiles("test")
 @RunWith(SpringRunner.class)
 public class PostServiceTest {
@@ -55,12 +50,10 @@ public class PostServiceTest {
     PostRepository postRepository;
 
 
-//    @MockBean
-//    SubredditRepository subredditRepository;
-
-
     @Test
     public void shouldMapSubredditObjectToSubredditDTOWhenGetSubredditIsCalled() {
+
+        // Given
         User user = new User("Mutush",
                 "daniel@gmail.com",
                 passwordEncoder.encode("Baraka1234"));
@@ -96,37 +89,12 @@ public class PostServiceTest {
 
         Mockito.when(postRepository.findById(Mockito.anyLong())).thenReturn(Optional.of(post));
 
+        // When
         PostResponse postResponse=  postService.getPost(post.getPostId());
 
+        //Assert
         Assert.assertEquals(postResponse.getPostTitle(), post.getPostTitle());
         Assert.assertTrue(postResponse.isUpVote());
-
-    }
-
-    @Test(expected = SubredditNotFoundException.class)
-    public void shouldThrowSubredditNotFoundException() {
-
-        UserPrincipal userPrincipal = createPrincipal();
-
-        Mockito.when(customUserDetailsService.loadUserById(Mockito.anyLong())).thenReturn(userPrincipal);
-
-        Mockito.when(authService.getCurrentUser()).thenReturn(new User(
-                "Mutush",
-                "daniel@gmail.com",
-                passwordEncoder.encode("Baraka1234")
-        ));
-
-        // Act & Assert
-        PostRequest postRequest = PostRequest.builder()
-                .postTitle("Love")
-                .description("What the fuck")
-                .url("http://localhost:5000/api/auth//user/me")
-                .subredditName("Love")
-                .build();
-
-        postService.save(postRequest);
-        assertThrows(SubredditNotFoundException.class, () -> postService.save(postRequest));
-        throw new SubredditNotFoundException("Love");
 
     }
 
