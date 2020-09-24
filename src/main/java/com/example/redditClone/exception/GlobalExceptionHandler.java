@@ -44,6 +44,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
 
+
     @ExceptionHandler(UserNotFoundException.class)
     public ResponseEntity<TimeStampErrorMessage> userNotFoundException(UserNotFoundException ex,
                                                                        WebRequest request) {
@@ -65,6 +66,19 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         errors.setStatus(HttpStatus.BAD_REQUEST.value());
         errors.setDetails(request.getDescription(false));
         return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+    }
+
+
+
+    @ExceptionHandler(VoteException.class)
+    public ResponseEntity<TimeStampErrorMessage> voteException(VoteException ex,
+                                                                     WebRequest request) {
+        TimeStampErrorMessage errors = new TimeStampErrorMessage();
+        errors.setTimestamp(LocalDateTime.now());
+        errors.setError(ex.getMessage());
+        errors.setStatus(HttpStatus.CONFLICT.value());
+        errors.setDetails(request.getDescription(false));
+        return new ResponseEntity<>(errors, HttpStatus.CONFLICT);
     }
 
     // @Validate For Validating Path Variables and Request Parameters

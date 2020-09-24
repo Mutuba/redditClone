@@ -4,16 +4,18 @@ import com.example.redditClone.dto.UserSummary;
 import com.example.redditClone.repository.UserRepository;
 import com.example.redditClone.security.CurrentUser;
 import com.example.redditClone.service.UserPrincipal;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/auth")
-public class UsersController {
+public class UserController {
 
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
+
+    public UserController(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
 
     @GetMapping("/user/me")
     @PreAuthorize("hasRole('USER')")

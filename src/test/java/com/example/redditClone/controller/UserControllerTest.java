@@ -34,7 +34,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @RunWith(SpringRunner.class)
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
-public class UsersControllerUsersTest {
+public class UserControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -44,9 +44,6 @@ public class UsersControllerUsersTest {
 
     @MockBean
     CustomUserDetailsService customUserDetailsService;
-
-    @MockBean
-    AuthService authService;
 
     @MockBean
     JwtTokenProvider jwtTokenProvider;
@@ -77,7 +74,6 @@ public class UsersControllerUsersTest {
     public String authToken() {
         return UUID.fromString("00000000-000-0000-0000-000000000001").toString();
     }
-
 
     public UserPrincipal createPrincipal() {
         Collection<GrantedAuthority> grantedAuthority = Arrays.asList(

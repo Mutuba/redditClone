@@ -15,7 +15,7 @@ import java.util.List;
 @AllArgsConstructor
 public class SubredditController {
 
-    SubredditService subredditService;
+    private final SubredditService subredditService;
 
     @GetMapping
     public List<SubredditDTO> getAllSubreddits() {

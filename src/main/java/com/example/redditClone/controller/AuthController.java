@@ -1,12 +1,10 @@
 package com.example.redditClone.controller;
 
-import com.example.redditClone.dto.APIResponse;
-import com.example.redditClone.dto.AuthenticationResponse;
-import com.example.redditClone.dto.LoginRequest;
-import com.example.redditClone.dto.RegistrationRequest;
+import com.example.redditClone.dto.*;
 import com.example.redditClone.models.Role;
 import com.example.redditClone.repository.UserRepository;
 import com.example.redditClone.service.AuthService;
+import com.example.redditClone.service.RefreshTokenService;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -22,11 +20,12 @@ import java.util.Optional;
 @AllArgsConstructor
 public class AuthController {
 
-    @Autowired
-   private AuthService authService;
 
-    @Autowired
-    UserRepository userRepository;
+   private final AuthService authService;
+
+    private final RefreshTokenService refreshTokenService;
+
+    private final UserRepository userRepository;
 
 
     @PostMapping("/register")
@@ -59,5 +58,18 @@ public class AuthController {
 
         AuthenticationResponse authenticationResponse = authService.login(loginRequest);
         return new ResponseEntity(authenticationResponse, HttpStatus.OK);
+    }
+
+
+
+    @PostMapping("/refresh/token")
+    public ResponseEntity<AuthenticationResponse> refreshTokens(@Valid @RequestBody RefreshTokenRequest refreshTokenRequest) {
+        return ResponseEntity.ok().body(authService.refreshToken(refreshTokenRequest));
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<String> logout(@Valid @RequestBody RefreshTokenRequest refreshTokenRequest) {
+        refreshTokenService.deleteRefreshToken(refreshTokenRequest.getRefreshToken());
+        return ResponseEntity.ok().body("Refresh Token Deleted Successfully!!");
     }
 }

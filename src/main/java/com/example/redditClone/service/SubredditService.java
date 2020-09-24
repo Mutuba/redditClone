@@ -33,7 +33,7 @@ public class SubredditService {
 
     // maps to subreddit to be send to th db for creation of subreddit.
     private Subreddit mapToSubreddit (SubredditDTO subredditDTO) {
-        return Subreddit.builder().name("/r/" + subredditDTO.getName())
+        return Subreddit.builder().name(subredditDTO.getName())
                 .description(subredditDTO.getDescription())
                 .user(authService.getCurrentUser())
                 .creationDate(Instant.now())
