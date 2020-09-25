@@ -12,6 +12,7 @@ import com.example.redditClone.repository.TokenRepository;
 import com.example.redditClone.repository.UserRepository;
 import com.example.redditClone.security.JwtTokenProvider;
 import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -34,7 +35,9 @@ import static com.example.redditClone.config.Constants.EMAIL_ACTIVATION;
 @Transactional
 public class AuthService {
 
-    private final PasswordEncoder passwordEncoder;
+    @Autowired
+    PasswordEncoder passwordEncoder;
+
     private final UserRepository userRepository;
     private final TokenRepository tokenRepository;
     private final MailService mailService;
@@ -128,6 +131,7 @@ public class AuthService {
 
     }
 
+
     public AuthenticationResponse refreshToken(RefreshTokenRequest refreshTokenRequest) {
         refreshTokenService.validateRefreshToken(refreshTokenRequest.getRefreshToken());
         String token = jwtTokenProvider.generateTokenWithUserName(refreshTokenRequest.getUsername());
@@ -138,6 +142,7 @@ public class AuthService {
                 .username(refreshTokenRequest.getUsername())
                 .build();
     }
+
 
     public boolean isLoggedIn() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

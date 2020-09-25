@@ -3,6 +3,7 @@ package com.example.redditClone.config;
 import com.example.redditClone.security.JwtAuthenticationEntryPoint;
 import com.example.redditClone.security.JwtAuthenticationFilter;
 import com.example.redditClone.service.CustomUserDetailsService;
+import org.springframework.http.HttpMethod;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -41,12 +42,6 @@ public class Security extends WebSecurityConfigurerAdapter {
         return new JwtAuthenticationFilter();
     }
 
-    @Bean
-    PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
-
-
     @Bean(BeanIds.AUTHENTICATION_MANAGER)
     @Override
     public AuthenticationManager authenticationManagerBean() throws Exception {
@@ -76,6 +71,25 @@ public class Security extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers("/api/auth/**")
                 .permitAll()
+
+                .antMatchers(HttpMethod.GET, "/api/subreddit")
+                .permitAll()
+
+                .antMatchers(HttpMethod.GET, "/api/subreddit/**")
+                .permitAll()
+                .antMatchers(HttpMethod.GET, "/api/posts/")
+                .permitAll()
+                .antMatchers(HttpMethod.GET, "/api/posts/**")
+                .permitAll()
+
+
+                .antMatchers("/v2/api-docs",
+                        "/configuration/ui",
+                        "/swagger-resources/**",
+                        "/configuration/security",
+                        "/swagger-ui.html",
+                        "/webjars/**")
+                .permitAll()
                 .anyRequest()
                 .authenticated();
 
@@ -86,5 +100,12 @@ public class Security extends WebSecurityConfigurerAdapter {
     }
 
 
+    @Bean
+    PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
 
 }
+
+

@@ -136,20 +136,6 @@ public class PostControllerTest {
     @Test
     public void shouldReturnAListOfPostsWhenGetAllPostsIsCalled()
             throws Exception {
-        UserPrincipal userPrincipal = createPrincipal();
-        String token = authToken();
-        Mockito.when(jwtTokenProvider.validateToken(Mockito.anyString())).thenReturn(Boolean.TRUE);
-        Mockito.when(jwtTokenProvider.getUserIdFromJWT(token)).thenReturn(userPrincipal.getId());
-
-        Mockito.when(customUserDetailsService.loadUserById(Mockito.anyLong())).thenReturn(userPrincipal);
-
-        Mockito.when(authService.getCurrentUser()).thenReturn(new User(
-                "Mutush",
-                "daniel@gmail.com",
-                passwordEncoder.encode("Baraka1234")
-        ));
-
-
         List<Post> postList = new ArrayList<>(Arrays.asList());
 
         Subreddit actualSubreddit = Subreddit
@@ -182,7 +168,6 @@ public class PostControllerTest {
         Mockito.when(postRepository.findAll()).thenReturn(actualPostList);
         String uri = "/api/posts";
         mockMvc.perform(MockMvcRequestBuilders.get(uri)
-                .header("Authorization", "Bearer " + token)
                 .contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
 
@@ -192,19 +177,6 @@ public class PostControllerTest {
 
     @Test
     public void shouldReturnAPostWithGivenIdWhenGetPostByIDIsCalled() throws Exception {
-
-        UserPrincipal userPrincipal = createPrincipal();
-        String token = authToken();
-        Mockito.when(jwtTokenProvider.validateToken(Mockito.anyString())).thenReturn(Boolean.TRUE);
-        Mockito.when(jwtTokenProvider.getUserIdFromJWT(token)).thenReturn(userPrincipal.getId());
-
-        Mockito.when(customUserDetailsService.loadUserById(Mockito.anyLong())).thenReturn(userPrincipal);
-
-        Mockito.when(authService.getCurrentUser()).thenReturn(new User(
-                "Mutush",
-                "daniel@gmail.com",
-                passwordEncoder.encode("Baraka1234")
-        ));
 
         Post actualPost = Post.builder()
                 .postId(123L)
@@ -233,8 +205,7 @@ public class PostControllerTest {
         Mockito.when(postRepository.findById(Mockito.anyLong())).thenReturn(Optional.of(actualPost));
 
         String uri = "/api/posts/123/";
-        mockMvc.perform(MockMvcRequestBuilders.get(uri)
-                .header("Authorization", "Bearer " + token))
+        mockMvc.perform(MockMvcRequestBuilders.get(uri))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/json"))
                 .andExpect(jsonPath("$.postTitle").value("Love"));
@@ -246,19 +217,6 @@ public class PostControllerTest {
     @Test
     public void shouldReturnPostsWithinGivenSubredditIDWhenGetPostsBySubredditIsCalled()
             throws Exception {
-
-        UserPrincipal userPrincipal = createPrincipal();
-        String token = authToken();
-        Mockito.when(jwtTokenProvider.validateToken(Mockito.anyString())).thenReturn(Boolean.TRUE);
-        Mockito.when(jwtTokenProvider.getUserIdFromJWT(token)).thenReturn(userPrincipal.getId());
-
-        Mockito.when(customUserDetailsService.loadUserById(Mockito.anyLong())).thenReturn(userPrincipal);
-
-        Mockito.when(authService.getCurrentUser()).thenReturn(new User(
-                "Mutush",
-                "daniel@gmail.com",
-                passwordEncoder.encode("Baraka1234")
-        ));
 
 
         List<Post> postList = new ArrayList<>(Arrays.asList(Post.builder()
@@ -296,7 +254,6 @@ public class PostControllerTest {
         Mockito.when(subredditRepository.findById(Mockito.anyLong())).thenReturn(Optional.of(actualSubreddit));
         String uri = "/api/posts/subreddit/123/";
         mockMvc.perform(MockMvcRequestBuilders.get(uri)
-                .header("Authorization", "Bearer " + token)
                 .contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
     }
@@ -305,20 +262,6 @@ public class PostControllerTest {
     @Test
     public void shouldReturnPostsWithinGivenSubredditIDWhenGetPostsByUsernameIsCalled()
             throws Exception {
-
-        UserPrincipal userPrincipal = createPrincipal();
-        String token = authToken();
-        Mockito.when(jwtTokenProvider.validateToken(Mockito.anyString())).thenReturn(Boolean.TRUE);
-        Mockito.when(jwtTokenProvider.getUserIdFromJWT(token)).thenReturn(userPrincipal.getId());
-
-        Mockito.when(customUserDetailsService.loadUserById(Mockito.anyLong()))
-                .thenReturn(userPrincipal);
-
-        Mockito.when(authService.getCurrentUser()).thenReturn(new User(
-                "Mutush",
-                "daniel@gmail.com",
-                passwordEncoder.encode("Baraka1234")
-        ));
 
         User user = new User("Mutush",
                 "daniel@gmail.com",
@@ -348,7 +291,6 @@ public class PostControllerTest {
         // Act & Assert
         String uri = "/api/posts/user/username/";
         mockMvc.perform(MockMvcRequestBuilders.get(uri)
-                .header("Authorization", "Bearer " + token)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
     }

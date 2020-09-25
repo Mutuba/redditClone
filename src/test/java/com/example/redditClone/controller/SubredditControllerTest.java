@@ -101,18 +101,6 @@ public class SubredditControllerTest {
 
     @Test
     public void getAllSubreddits_ShouldReturn_List_of_Subreddits() throws Exception {
-        UserPrincipal userPrincipal = createPrincipal();
-        String token = authToken();
-        Mockito.when(jwtTokenProvider.validateToken(Mockito.anyString())).thenReturn(Boolean.TRUE);
-        Mockito.when(jwtTokenProvider.getUserIdFromJWT(token)).thenReturn(userPrincipal.getId());
-        Mockito.when(customUserDetailsService.loadUserById(Mockito.anyLong())).thenReturn(userPrincipal);
-
-        Mockito.when(authService.getCurrentUser()).thenReturn(new User(
-                "Mutush",
-                "daniel@gmail.com",
-                passwordEncoder.encode("Baraka1234")
-        ));
-
         List<Subreddit> actualSubredditList = Arrays.asList(Subreddit.builder()
                 .id(123L)
                 .name("Love")
@@ -130,7 +118,7 @@ public class SubredditControllerTest {
         Mockito.when(subredditRepository.findAll()).thenReturn(actualSubredditList);
         String uri = "/api/subreddit";
         mockMvc.perform(MockMvcRequestBuilders
-                .get(uri).header("Authorization", "Bearer " + token))
+                .get(uri))
                 .andExpect(content().contentType("application/json"))
                 .andExpect(status().isOk());
     }
@@ -138,18 +126,6 @@ public class SubredditControllerTest {
 
     @Test
     public void getSubreddit_ShouldReturn_Found_Subreddit() throws Exception {
-        UserPrincipal userPrincipal = createPrincipal();
-        String token = authToken();
-        Mockito.when(jwtTokenProvider.validateToken(Mockito.anyString())).thenReturn(Boolean.TRUE);
-        Mockito.when(jwtTokenProvider.getUserIdFromJWT(token)).thenReturn(userPrincipal.getId());
-        Mockito.when(customUserDetailsService.loadUserById(Mockito.anyLong())).thenReturn(userPrincipal);
-
-        Mockito.when(authService.getCurrentUser()).thenReturn(new User(
-                "Mutush",
-                "daniel@gmail.com",
-                passwordEncoder.encode("Baraka1234")
-        ));
-
         Subreddit actualSubreddit = Subreddit.builder()
                 .id(123L)
                 .name("iPhone12")
@@ -167,7 +143,7 @@ public class SubredditControllerTest {
         Mockito.when(subredditRepository.findById(Mockito.anyLong())).thenReturn(Optional.of(actualSubreddit));
 
         mockMvc.perform(MockMvcRequestBuilders
-                .get("/api/subreddit/123").header("Authorization", "Bearer " + token))
+                .get("/api/subreddit/123"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/json"))
                 .andExpect(jsonPath("$.name").value("iPhone12"))
@@ -176,51 +152,15 @@ public class SubredditControllerTest {
 
 
     @Test
-    public void shouldRaiseUnAuthorisedIfTokenIsNotInHeaders() throws Exception {
-        Subreddit actualSubreddit = Subreddit.builder()
-                .id(123L)
-                .name("iPhone12")
-                .description("The best smartphone ever")
-                .creationDate(Instant.now())
-                .posts(Arrays.asList(
-                        new Post(
-                                "Love",
-                                "http://127.0.0.1:8000/api/wallet/create",
-                                "What a thing",
-                                23,
-                                Instant.now())))
-                .build();
-
-        Mockito.when(subredditRepository.findById(Mockito.anyLong())).thenReturn(Optional.of(actualSubreddit));
-
-        mockMvc.perform(MockMvcRequestBuilders
-                .get("/api/subreddit/123")
-                .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isUnauthorized());
-    }
-
-    @Test
     public void getSubreddit_ShouldReturn_404_Not_Found_For_Non_Existent_Subreddit() throws Exception {
-        UserPrincipal userPrincipal = createPrincipal();
-        String token = authToken();
-        Mockito.when(jwtTokenProvider.validateToken(Mockito.anyString())).thenReturn(Boolean.TRUE);
-        Mockito.when(jwtTokenProvider.getUserIdFromJWT(token)).thenReturn(userPrincipal.getId());
-        Mockito.when(customUserDetailsService.loadUserById(Mockito.anyLong())).thenReturn(userPrincipal);
-        Mockito.when(authService.getCurrentUser()).thenReturn(new User(
-                "Mutush",
-                "daniel@gmail.com",
-                passwordEncoder.encode("Baraka1234")
-        ));
-
-
         Mockito.when(subredditRepository.findById(Mockito.anyLong()))
                 .thenThrow(new SubredditNotFoundException("Subreddit not found with id -0"));
 
         mockMvc.perform(MockMvcRequestBuilders
-                .get("/api/subreddit/123").header("Authorization", "Bearer " + token)
-                .accept(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("error").value("Subreddit not found with id -0"))
-                .andExpect(status().isNotFound());
+                .get("/api/subreddit/123"))
+                .andExpect(status().isNotFound())
+                .andExpect(content().contentType("application/json"))
+                .andExpect(jsonPath("error").value("Subreddit not found with id -0"));
     }
 
     /**
