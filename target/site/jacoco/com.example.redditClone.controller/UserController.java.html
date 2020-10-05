@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>UserController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">redditClone</a> &gt; <a href="index.source.html" class="el_package">com.example.redditClone.controller</a> &gt; <span class="el_source">UserController.java</span></div><h1>UserController.java</h1><pre class="source lang-java linenums">package com.example.redditClone.controller;
+
+import com.example.redditClone.dto.UserSummary;
+import com.example.redditClone.repository.UserRepository;
+import com.example.redditClone.security.CurrentUser;
+import com.example.redditClone.service.UserPrincipal;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping(&quot;/api/auth&quot;)
+public class UserController {
+
+    private final UserRepository userRepository;
+
+<span class="fc" id="L16">    public UserController(UserRepository userRepository) {</span>
+<span class="fc" id="L17">        this.userRepository = userRepository;</span>
+<span class="fc" id="L18">    }</span>
+
+    @GetMapping(&quot;/user/me&quot;)
+    @PreAuthorize(&quot;hasRole('USER')&quot;)
+    public UserSummary getCurrentUser(@CurrentUser UserPrincipal currentUser) {
+<span class="fc" id="L23">        UserSummary userSummary = new UserSummary(currentUser.getId(),</span>
+<span class="fc" id="L24">                currentUser.getUsername(), currentUser.getEmail());</span>
+<span class="fc" id="L25">        return userSummary;</span>
+    }
+
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>

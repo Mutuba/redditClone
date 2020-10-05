@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SubredditController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">redditClone</a> &gt; <a href="index.source.html" class="el_package">com.example.redditClone.controller</a> &gt; <span class="el_source">SubredditController.java</span></div><h1>SubredditController.java</h1><pre class="source lang-java linenums">package com.example.redditClone.controller;
+
+import com.example.redditClone.dto.SubredditDTO;
+import com.example.redditClone.service.SubredditService;
+import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
+import java.util.List;
+
+@RestController
+@RequestMapping(&quot;/api/subreddit&quot;)
+<span class="fc" id="L15">@AllArgsConstructor</span>
+public class SubredditController {
+
+    private final SubredditService subredditService;
+
+    @GetMapping
+    public List&lt;SubredditDTO&gt; getAllSubreddits() {
+<span class="fc" id="L22">        return subredditService.getAll();</span>
+    }
+
+    @GetMapping(&quot;/{id}&quot;)
+    public SubredditDTO getSubreddit(@PathVariable Long id) {
+<span class="fc" id="L27">        return subredditService.getSubreddit(id);</span>
+    }
+
+    @PostMapping
+    public ResponseEntity addSubreddit(@RequestBody @Valid SubredditDTO subredditDTO) {
+<span class="fc" id="L32">        SubredditDTO subredditDTO1 = subredditService.save(subredditDTO);</span>
+<span class="fc" id="L33">        return new ResponseEntity(subredditDTO1, HttpStatus.CREATED);</span>
+    }
+
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>

@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>JwtTokenProvider.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">redditClone</a> &gt; <a href="index.source.html" class="el_package">com.example.redditClone.security</a> &gt; <span class="el_source">JwtTokenProvider.java</span></div><h1>JwtTokenProvider.java</h1><pre class="source lang-java linenums">package com.example.redditClone.security;
+
+import com.example.redditClone.service.UserPrincipal;
+import io.jsonwebtoken.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.Authentication;
+import org.springframework.stereotype.Component;
+
+import java.util.Date;
+
+// provides a user token based on a user who is trying to login
+// the class also validates a user token
+@Component
+<span class="fc" id="L16">public class JwtTokenProvider {</span>
+
+<span class="fc" id="L18">    private static final Logger logger = LoggerFactory.getLogger(JwtTokenProvider.class);</span>
+
+    // get value from properties file
+    @Value(&quot;${app.jwtSecret}&quot;)
+    private String jwtSecret;
+
+    @Value(&quot;${app.jwtExpirationInMs}&quot;)
+    private int jwtExpirationInMs;
+
+    // param authentication passed from AuthController has principal (user object), authorities, boolean authenticated true
+    // getPrincipal is getter that returns the principal object
+    public String generateToken(Authentication authentication) {
+
+        // Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        // if (!(authentication instanceof AnonymousAuthenticationToken)) {
+        //     String currentUserName = authentication.getName();
+        //     return currentUserName;
+        //  }
+        // UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        // System.out.println(&quot;User has authorities: &quot; + userDetails.getAuthorities());
+
+        // casting spring security principal to the custom user details object (UserPrincipal)
+        // in the controller a user can be found as:
+        // Principal principal = request.getUserPrincipal();
+        // then principal.getName()
+        // think of django request.user
+
+<span class="fc" id="L45">        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();</span>
+<span class="fc" id="L46">        Date now = new Date();</span>
+<span class="fc" id="L47">        Date expiryDate = new Date(now.getTime() + jwtExpirationInMs);</span>
+
+<span class="fc" id="L49">        return Jwts.builder()</span>
+<span class="fc" id="L50">                .setSubject(Long.toString(userPrincipal.getId()))</span>
+<span class="fc" id="L51">                .setIssuedAt(new Date())</span>
+<span class="fc" id="L52">                .setExpiration(expiryDate)</span>
+<span class="fc" id="L53">                .signWith(SignatureAlgorithm.HS512, jwtSecret)</span>
+<span class="fc" id="L54">                .compact();</span>
+    }
+
+
+
+    //retrieve username from jwt token
+    public Long getUserIdFromJWT(String token) {
+<span class="fc" id="L61">        Claims claims = Jwts.parser()</span>
+<span class="fc" id="L62">                .setSigningKey(jwtSecret)</span>
+<span class="fc" id="L63">                .parseClaimsJws(token)</span>
+<span class="fc" id="L64">                .getBody();</span>
+
+<span class="fc" id="L66">        return Long.parseLong(claims.getSubject());</span>
+    }
+
+    public String generateTokenWithUserName(String username) {
+
+<span class="fc" id="L71">        Date now = new Date();</span>
+<span class="fc" id="L72">        Date expiryDate = new Date(now.getTime() + jwtExpirationInMs);</span>
+<span class="fc" id="L73">        return Jwts.builder()</span>
+<span class="fc" id="L74">                .setSubject(username)</span>
+<span class="fc" id="L75">                .setIssuedAt(new Date())</span>
+<span class="fc" id="L76">                .setExpiration(expiryDate)</span>
+<span class="fc" id="L77">                .signWith(SignatureAlgorithm.HS512, jwtSecret)</span>
+<span class="fc" id="L78">                .compact();</span>
+    }
+
+
+    public boolean validateToken(String authToken) {
+        try {
+<span class="fc" id="L84">            Jwts.parser().setSigningKey(jwtSecret).parseClaimsJws(authToken);</span>
+<span class="fc" id="L85">            return true;</span>
+<span class="fc" id="L86">        } catch (SignatureException ex) {</span>
+<span class="fc" id="L87">            logger.error(&quot;Invalid JWT signature&quot;, ex.getMessage());</span>
+<span class="fc" id="L88">        } catch (MalformedJwtException ex) {</span>
+<span class="fc" id="L89">            logger.error(&quot;Invalid JWT token&quot;, ex.getMessage());</span>
+<span class="fc" id="L90">        } catch (ExpiredJwtException ex) {</span>
+<span class="fc" id="L91">            logger.error(&quot;Expired JWT token&quot;, ex.getMessage());</span>
+<span class="fc" id="L92">        }</span>
+<span class="fc" id="L93">        return false;</span>
+    }
+
+    public int getJwtExpirationInMillis() {
+<span class="fc" id="L97">        return jwtExpirationInMs;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>

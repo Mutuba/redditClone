@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AuthController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">redditClone</a> &gt; <a href="index.source.html" class="el_package">com.example.redditClone.controller</a> &gt; <span class="el_source">AuthController.java</span></div><h1>AuthController.java</h1><pre class="source lang-java linenums">package com.example.redditClone.controller;
+
+import com.example.redditClone.dto.*;
+import com.example.redditClone.models.Role;
+import com.example.redditClone.repository.UserRepository;
+import com.example.redditClone.service.AuthService;
+import com.example.redditClone.service.RefreshTokenService;
+import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import javax.mail.MessagingException;
+import javax.validation.Valid;
+import java.util.Optional;
+
+@RestController
+@RequestMapping(&quot;/api/auth&quot;)
+<span class="fc" id="L20">@AllArgsConstructor</span>
+public class AuthController {
+
+
+   private final AuthService authService;
+
+    private final RefreshTokenService refreshTokenService;
+
+    private final UserRepository userRepository;
+
+
+    @PostMapping(&quot;/register&quot;)
+    public ResponseEntity register( @Valid @RequestBody RegistrationRequest registerRequest) {
+
+<span class="fc bfc" id="L34" title="All 2 branches covered.">        if (userRepository.existsByUsername(registerRequest.getUsername())) {</span>
+<span class="fc" id="L35">            return new ResponseEntity(new APIResponse(false, &quot;Username is already taken!&quot;),</span>
+                    HttpStatus.BAD_REQUEST);
+        }
+
+<span class="fc bfc" id="L39" title="All 2 branches covered.">        if (userRepository.existsByEmail(registerRequest.getEmail())) {</span>
+<span class="fc" id="L40">            return new ResponseEntity(new APIResponse(false, &quot;Email Address already in use!&quot;),</span>
+                    HttpStatus.BAD_REQUEST);
+        }
+
+<span class="fc" id="L44">        authService.register(registerRequest);</span>
+<span class="fc" id="L45">        return new ResponseEntity&lt;&gt;(HttpStatus.OK);</span>
+    }
+
+    @GetMapping(&quot;/verify/{token}&quot;)
+    public ResponseEntity verify(@PathVariable String token) {
+<span class="fc" id="L50">        authService.verifyToken(token);</span>
+<span class="fc" id="L51">        return new ResponseEntity&lt;&gt;(&quot;Account Activated&quot;, HttpStatus.OK);</span>
+    }
+
+
+    @PostMapping(&quot;/login&quot;)
+    @ResponseBody
+    public ResponseEntity login(@RequestBody LoginRequest loginRequest) {
+
+<span class="fc" id="L59">        AuthenticationResponse authenticationResponse = authService.login(loginRequest);</span>
+<span class="fc" id="L60">        return new ResponseEntity(authenticationResponse, HttpStatus.OK);</span>
+    }
+
+
+
+    @PostMapping(&quot;/refresh/token&quot;)
+    public ResponseEntity&lt;AuthenticationResponse&gt; refreshTokens(@Valid @RequestBody RefreshTokenRequest refreshTokenRequest) {
+<span class="fc" id="L67">        return ResponseEntity.ok().body(authService.refreshToken(refreshTokenRequest));</span>
+    }
+
+    @PostMapping(&quot;/logout&quot;)
+    public ResponseEntity logout(@Valid @RequestBody RefreshTokenRequest refreshTokenRequest) {
+<span class="fc" id="L72">        refreshTokenService.deleteRefreshToken(refreshTokenRequest.getRefreshToken());</span>
+<span class="fc" id="L73">        return new ResponseEntity&lt;&gt;(&quot;Refresh Token Deleted Successfully!!&quot;, HttpStatus.OK);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.3.201901230119</span></div></body></html>
