@@ -1,12 +1,10 @@
 package com.example.redditClone.controller;
 
 import com.example.redditClone.dto.LoginRequest;
-import com.example.redditClone.exception.UsernameNotFoundException;
 import com.example.redditClone.service.CustomUserDetailsService;
 import com.example.redditClone.service.UserPrincipal;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -26,6 +24,7 @@ import java.util.Arrays;
 import java.util.Collection;
 
 import static groovy.json.JsonOutput.toJson;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @RunWith(SpringRunner.class)
@@ -48,8 +47,8 @@ public class AuthControllerLoginTest {
     @Test
     public void userShouldLoginSuccessfullyWhenAccountExists() throws Exception {
         UserPrincipal userPrincipal = createPrincipal();
-        Mockito.when(customUserDetailsService.loadUserByUsername(
-                Mockito.anyString())).thenReturn(userPrincipal);
+        when(customUserDetailsService.loadUserByUsername(
+                anyString())).thenReturn(userPrincipal);
         LoginRequest loginRequest = new LoginRequest("Mutush", "Baraka1234");
 
         //Act & Assert
@@ -66,8 +65,8 @@ public class AuthControllerLoginTest {
     public void userLoginShouldBeUnsuccessfulWhenWrongPasswordIsUsed() throws Exception {
 
         UserPrincipal userPrincipal = createPrincipal();
-        Mockito.when(customUserDetailsService.loadUserByUsername(
-                Mockito.anyString())).thenReturn(userPrincipal);
+        when(customUserDetailsService.loadUserByUsername(
+                anyString())).thenReturn(userPrincipal);
 
         LoginRequest loginRequest = new LoginRequest("Mutush", "Baraka12345");
 
@@ -83,8 +82,8 @@ public class AuthControllerLoginTest {
 
     @Test
     public void userLoginShouldBeUnsuccessfulWhenWrongAccountDetailsAreUsed() throws Exception {
-        Mockito.when(customUserDetailsService.loadUserByUsername(
-                Mockito.anyString())).thenThrow(new BadCredentialsException("Bad credentials"));
+        when(customUserDetailsService.loadUserByUsername(
+                anyString())).thenThrow(new BadCredentialsException("Bad credentials"));
         LoginRequest loginRequest = new LoginRequest("Mutuba", "Baraka1234");
         //Act & Assert
         mockMvc.perform(MockMvcRequestBuilders.post("/api/auth/login")
