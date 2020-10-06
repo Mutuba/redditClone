@@ -1,6 +1,8 @@
 package com.example.redditClone.controller;
 
+import com.example.redditClone.dto.APIResponse;
 import com.example.redditClone.dto.SubredditDTO;
+import com.example.redditClone.repository.SubredditRepository;
 import com.example.redditClone.service.SubredditService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -17,6 +19,8 @@ public class SubredditController {
 
     private final SubredditService subredditService;
 
+    private final SubredditRepository subredditRepository;
+
     @GetMapping
     public List<SubredditDTO> getAllSubreddits() {
         return subredditService.getAll();
@@ -29,6 +33,10 @@ public class SubredditController {
 
     @PostMapping
     public ResponseEntity addSubreddit(@RequestBody @Valid SubredditDTO subredditDTO) {
+        if(subredditRepository.existsByName(subredditDTO.getName())){
+            return new ResponseEntity(new APIResponse(false, "Subreddit name already taken!"),
+                    HttpStatus.BAD_REQUEST);
+        }
         SubredditDTO subredditDTO1 = subredditService.save(subredditDTO);
         return new ResponseEntity(subredditDTO1, HttpStatus.CREATED);
     }

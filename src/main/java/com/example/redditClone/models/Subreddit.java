@@ -13,6 +13,12 @@ import java.util.List;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
+
+@Table(name = "subreddit", uniqueConstraints = {
+        @UniqueConstraint(columnNames = {
+                "name"
+        })
+})
 public class Subreddit {
     @Id
     @SequenceGenerator(name = "SUB_GEN", sequenceName = "SEQ_SUB", allocationSize = 1)
