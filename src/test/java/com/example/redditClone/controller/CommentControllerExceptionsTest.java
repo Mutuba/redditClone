@@ -8,7 +8,6 @@ import com.example.redditClone.service.CustomUserDetailsService;
 import com.example.redditClone.service.UserPrincipal;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -29,7 +28,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static groovy.json.JsonOutput.toJson;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -133,10 +132,10 @@ public class CommentControllerExceptionsTest {
 
         UserPrincipal userPrincipal = createPrincipal();
 
-        when(customUserDetailsService.loadUserById(Mockito.anyLong())).thenReturn(userPrincipal);
+        when(customUserDetailsService.loadUserById(anyLong())).thenReturn(userPrincipal);
         // safe to control an external dependency in tests
         when(userRepository.findByUsername(userPrincipal.getUsername())).thenReturn(Optional.of(user));
-        when(jwtTokenProvider.validateToken(Mockito.anyString())).thenReturn(Boolean.TRUE);
+        when(jwtTokenProvider.validateToken(anyString())).thenReturn(Boolean.TRUE);
 
         String token = authToken();
         when(jwtTokenProvider.getUserIdFromJWT(token)).thenReturn(userPrincipal.getId());
