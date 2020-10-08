@@ -22,7 +22,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.mail.MessagingException;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.Optional;
@@ -64,7 +63,6 @@ public class AuthService {
         Optional<Role> userRole = roleRepository.findByName(RoleName.ROLE_USER);
 
         // Evaluate the optional if null create a user role
-
         Role role = userRole.orElseGet(() -> roleRepository.save(new Role(RoleName.ROLE_USER)));
 
         user.setRoles(Collections.singleton(role));
