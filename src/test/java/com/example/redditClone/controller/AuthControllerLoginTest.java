@@ -52,7 +52,8 @@ public class AuthControllerLoginTest {
         LoginRequest loginRequest = new LoginRequest("Mutush", "Baraka1234");
 
         //Act & Assert
-        mockMvc.perform(MockMvcRequestBuilders.post("/api/auth/login")
+        String url = "/api/auth/login";
+        mockMvc.perform(MockMvcRequestBuilders.post(url)
                 .content(toJson(loginRequest))
                 .contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -71,7 +72,8 @@ public class AuthControllerLoginTest {
         LoginRequest loginRequest = new LoginRequest("Mutush", "Baraka12345");
 
         //Act & Assert
-        mockMvc.perform(MockMvcRequestBuilders.post("/api/auth/login")
+        String url = "/api/auth/login";
+        mockMvc.perform(MockMvcRequestBuilders.post(url)
                 .content(toJson(loginRequest))
                 .contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
@@ -86,7 +88,8 @@ public class AuthControllerLoginTest {
                 anyString())).thenThrow(new BadCredentialsException("Bad credentials"));
         LoginRequest loginRequest = new LoginRequest("Mutuba", "Baraka1234");
         //Act & Assert
-        mockMvc.perform(MockMvcRequestBuilders.post("/api/auth/login")
+        String url = "/api/auth/login";
+        mockMvc.perform(MockMvcRequestBuilders.post(url)
                 .content(toJson(loginRequest))
                 .contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())

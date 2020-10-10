@@ -68,7 +68,7 @@ public class AuthService {
         user.setRoles(Collections.singleton(role));
 
         String token = generateVerificationToken(user);
-        String message = mailBuilder.build("Welcome to React-Spring-Reddit Clone. " +
+        String message = mailBuilder.build("Welcome to RedditMini. " +
                 "Please visit the link below to activate you account : " + EMAIL_ACTIVATION + "/" + token);
         mailService.sendEmail(
                 new NotificationEmail("Please Activate Your Account", user.getEmail(), message));
